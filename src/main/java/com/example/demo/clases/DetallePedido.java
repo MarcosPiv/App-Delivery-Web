@@ -1,8 +1,24 @@
 package com.example.demo.clases;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@Setter
+@Getter
+
+@Entity
 public class DetallePedido {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
+    @OneToOne
+    @JoinColumn(name = "item_id")
     private ItemMenu item;
+    @ManyToOne
+    @JoinColumn(name = "pedido_id")
     private Pedido pedido;
     private int cantidad;
     private double precio;
@@ -12,46 +28,6 @@ public class DetallePedido {
         this.item = item;
         this.pedido = pedido;
         this.cantidad = cantidad;
-        this.precio = precio;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public ItemMenu getItem() {
-        return item;
-    }
-
-    public void setItem(ItemMenu item) {
-        this.item = item;
-    }
-
-    public Pedido getPedido() {
-        return pedido;
-    }
-
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
-    }
-
-    public int getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
-
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
         this.precio = precio;
     }
 }

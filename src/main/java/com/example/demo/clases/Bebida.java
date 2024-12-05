@@ -1,5 +1,17 @@
 package com.example.demo.clases;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@Getter
+@Setter
+
+@Entity
+@DiscriminatorValue("Bebida")
 public class Bebida extends ItemMenu{
     private double graduacionAlcoholica;
     private double tamanio;
@@ -14,18 +26,7 @@ public class Bebida extends ItemMenu{
         this.graduacionAlcoholica = graduacionAlcoholica;
         this.tamanio = tamanio;
     }
-    public double getGraduacionAlcoholica() {
-        return graduacionAlcoholica;
-    }
-    public void setGraduacionAlcoholica(double graduacionAlcoholica) {
-        this.graduacionAlcoholica = graduacionAlcoholica;
-    }
-    public double getTamanio() {
-        return tamanio;
-    }
-    public void setTamanio(double tamanio) {
-        this.tamanio = tamanio;
-    }
+
     @Override
     public double peso(){
         if(graduacionAlcoholica == 0){

@@ -1,10 +1,26 @@
 package com.example.demo.clases;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@Getter
+@Setter
+
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipoItem", discriminatorType = DiscriminatorType.STRING)
 public abstract class ItemMenu {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     private String nombre;
     private String descripcion;
     private double precio;
+    @OneToOne
+    @JoinColumn(name = "categoria_id")
     private Categoria categoria;
     private double peso;
 
@@ -12,41 +28,4 @@ public abstract class ItemMenu {
     public abstract boolean esComida();
     public abstract boolean esBebida();
     public abstract boolean aptoVegano();
-
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
-    public String getNombre() {
-        return nombre;
-    }
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-    public String getDescripcion() {
-        return descripcion;
-    }
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-    public double getPrecio() {
-        return precio;
-    }
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
-    public Categoria getCategoria() {
-        return categoria;
-    }
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
-    }
-    public double getPeso() {
-        return peso;
-    }
-    public void setPeso(double peso) {
-        this.peso = peso;
-    }
 }

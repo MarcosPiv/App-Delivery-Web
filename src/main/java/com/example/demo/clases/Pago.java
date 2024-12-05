@@ -1,6 +1,12 @@
 package com.example.demo.clases;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Date;
+
+@Getter
+@Setter
 
 public class Pago {
     private double monto;
@@ -10,17 +16,5 @@ public class Pago {
     public Pago(double monto, Date fecha) {
         this.monto = monto;
         this.fecha = fecha;
-    }
-
-    public double getMonto() {
-        return monto;
-    }
-
-    public Date getFecha() {
-        return fecha;
-    }
-
-    public void setTipoPago(String tipoPago) {
-        this.tipoPago = tipoPago;
     }
 }

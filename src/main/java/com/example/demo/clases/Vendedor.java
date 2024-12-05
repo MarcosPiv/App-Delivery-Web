@@ -1,19 +1,35 @@
 package com.example.demo.clases;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
+@Getter
+@Setter
+
+@Entity
 public class Vendedor {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     private String nombre;
     private String direccion;
+    @Embedded
     private Coordenada coordenada;
+    @Setter
+    @Getter
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "itemMenu_id")
     private ArrayList<ItemMenu> itemsMenu = new ArrayList<>();
+    @OneToMany(mappedBy = "restaurante", targetEntity = Pedido.class, cascade = CascadeType.ALL)
     private ArrayList<Pedido> listaDePedidos;
 
-    public Vendedor() {
-    }
 
     public Vendedor(int id, String nombre, String direccion, Coordenada coordenada) {
         this.id = id;
@@ -104,52 +120,13 @@ public class Vendedor {
     public void addItemMenu(ItemMenu unItemMenu){
         itemsMenu.add(unItemMenu);
     }
-    
-    public int getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public Coordenada getCoordenada() {
-        return coordenada;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public void setCoordenada(Coordenada coordenada) {
-        this.coordenada = coordenada;
-    }
-
-    public ArrayList<ItemMenu> getItemsMenu() {
-        return itemsMenu;
-    }
-
-    public void setItemsMenu(ArrayList<ItemMenu> itemsMenu) {
-        this.itemsMenu = itemsMenu;
-    }
 
     public boolean perteneceId(Vendedor unVendedor, int unId){
         boolean pertenece = false;
         for (ItemMenu unItemMenu: unVendedor.getItemsMenu()){
-            if(unItemMenu.getId() == unId){
-                pertenece=true;
+            if (unItemMenu.getId() == unId) {
+                pertenece = true;
+                break;
             }
         }
         return pertenece;
@@ -167,13 +144,13 @@ public class Vendedor {
     public Pedido generarPedido(int[][] itemsyCant, Vendedor vendedor, Cliente unCliente) {
         Pedido nuevoPedido = new Pedido();
         try {
-            for (int i = 0; i < itemsyCant.length; i++) {
-                if (perteneceId(vendedor, itemsyCant[i][0])) {
-                    ItemMenu nuevoItemMenu = getItemById(vendedor, itemsyCant[i][0]);
+            for (int[] itemsYcant : itemsyCant) {
+                if (perteneceId(vendedor, itemsYcant[0])) {
+                    ItemMenu nuevoItemMenu = getItemById(vendedor, itemsYcant[0]);
                     if (nuevoItemMenu == null) {
-                        throw new IllegalArgumentException("ItemMenu not found for id: " + itemsyCant[i][0]);
+                        throw new IllegalArgumentException("ItemMenu not found for id: " + itemsYcant[0]);
                     }
-                    DetallePedido nuevoDetalle = new DetallePedido(nuevoItemMenu.getId(), nuevoItemMenu, itemsyCant[i][1], nuevoItemMenu.getPrecio(), nuevoPedido);
+                    DetallePedido nuevoDetalle = new DetallePedido(nuevoItemMenu.getId(), nuevoItemMenu, itemsYcant[1], nuevoItemMenu.getPrecio(), nuevoPedido);
                     nuevoPedido.agregarDetalle(nuevoDetalle);
                     nuevoPedido.setEstado(Estado.RECIBIDO);
                     nuevoPedido.setCliente(unCliente);

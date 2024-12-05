@@ -1,5 +1,17 @@
 package com.example.demo.clases;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@Getter
+@Setter
+
+@Entity
+@DiscriminatorValue("Comida")
 public class Comida extends ItemMenu{
     private int calorias;
     private boolean aptoVegano;
@@ -18,44 +30,11 @@ public class Comida extends ItemMenu{
         this.aptoCeliaco = aptoCeliaco;
         this.pesoSinEnvase = pesoSinEnvase;
     }
-
-    public int getCalorias() {
-        return calorias;
-    }
-
-    public void setCalorias(int calorias) {
-        this.calorias = calorias;
-    }
-
-    public boolean isAptoVegano() {
-        return aptoVegano;
-    }
-
-    public void setAptoVegano(boolean aptoVegano) {
-        this.aptoVegano = aptoVegano;
-    }
-
-    public boolean isAptoCeliaco() {
-        return aptoCeliaco;
-    }
-
-    public void setAptoCeliaco(boolean aptoCeliaco) {
-        this.aptoCeliaco = aptoCeliaco;
-    }
-
-    public double getPesoSinEnvase() {
-        return pesoSinEnvase;
-    }
-
-    public void setPesoSinEnvase(double pesoSinEnvase) {
-        this.pesoSinEnvase = pesoSinEnvase;
-    }
     @Override
     public double peso(){
         setPeso(this.pesoSinEnvase*1.1);
         return getPeso();
     }
-
     @Override
     public boolean esComida() {
         return true;

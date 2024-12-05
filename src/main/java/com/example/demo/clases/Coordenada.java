@@ -1,8 +1,15 @@
 package com.example.demo.clases;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Embeddable
+@NoArgsConstructor
+@Setter
+@Getter
+
+@Embeddable // indica que es un atributo embebido
 public class Coordenada {
     private double lat;
     private double lng;
@@ -11,12 +18,4 @@ public class Coordenada {
         this.lat = lat;
         this.lng = lng;
     }
-
-    public double getLat() {
-        return lat;
-    }
-
-    public double getLng() {
-        return lng;
-    }   
 }

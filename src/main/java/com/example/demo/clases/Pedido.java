@@ -7,15 +7,32 @@ import com.example.demo.patrones.observer.Observer;
 import com.example.demo.patrones.strategy.PagarMercadoPago;
 import com.example.demo.patrones.strategy.PagarTransferencia;
 import com.example.demo.patrones.strategy.PagoStrategy;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
+@Getter
+
+@Entity
 public class Pedido extends Observable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
+    @OneToOne
+    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
+    @ManyToOne
+    @JoinColumn(name = "vendedor_id")
     private Vendedor restaurante;
     private double precioTotal;
+    @OneToMany(mappedBy = "pedido", targetEntity = DetallePedido.class, cascade = CascadeType.ALL)
     private ArrayList<DetallePedido> detallesPedido;
     private Estado estado;
+    @Transient // indica que no se persiste en la base de datos
     private PagoStrategy tipoDePago;
+    @Transient
     private ArrayList<Observer> observers = new ArrayList<>();
 
     public Pedido() {
