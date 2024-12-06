@@ -8,6 +8,7 @@ import com.example.demo.dto.CategoriaDTO;
 import com.example.demo.dto.ItemMenuDTO;
 import com.example.demo.mappers.ItemMenuMapper;
 import com.example.demo.servicios.ICategoriaService;
+import com.example.demo.servicios.IitemMenuService;
 import com.example.demo.servicios.ItemMenuService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/itemMenu")
 public class ItemMenuController {
     private final ICategoriaService categoriaService;
-    private final ItemMenuService itemMenuService;
+    private final IitemMenuService itemMenuService;
     private final ItemMenuMapper itemMenuMapper;
 
     @Autowired
