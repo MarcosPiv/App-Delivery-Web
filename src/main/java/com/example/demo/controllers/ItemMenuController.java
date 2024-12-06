@@ -121,6 +121,7 @@ public ResponseEntity<ItemMenuDTO> crearItemMenu(@Valid @RequestBody ItemMenuDTO
 
             return ResponseEntity.ok(itemMenuDTO);
         } catch (Exception ex) {
+            System.out.println(ex.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(null);
         }

@@ -77,7 +77,7 @@ public class ItemMenuMapper {
         bebida.setPeso(bebidaDTO.getPeso());
         bebida.setGraduacionAlcoholica(bebidaDTO.getGraduacionAlcoholica());
         bebida.setTamanio(bebidaDTO.getTamanio());
-        bebida.setCategoria(buscarOCrearCategoria(bebidaDTO.getCategoria())); // Buscar o usar categoría existente
+            bebida.setCategoria(buscarOCrearCategoria(bebidaDTO.getCategoria(),"Bebida")); // Buscar o usar categoría existente
         return bebida;
     }
 
@@ -92,7 +92,7 @@ public class ItemMenuMapper {
         comida.setAptoVegano(comidaDTO.isAptoVegano());
         comida.setAptoCeliaco(comidaDTO.isAptoCeliaco());
         comida.setPesoSinEnvase(comidaDTO.getPesoSinEnvase());
-        comida.setCategoria(buscarOCrearCategoria(comidaDTO.getCategoria())); // Buscar o usar categoría existente
+        comida.setCategoria(buscarOCrearCategoria(comidaDTO.getCategoria(),"Comida")); // Buscar o usar categoría existente
         return comida;
     }
 
@@ -105,37 +105,44 @@ public class ItemMenuMapper {
         );
     }
 
-    private Categoria buscarOCrearCategoria(CategoriaDTO categoriaDTO) {
-        // Verificar si el DTO de categoría es nulo
-        if (categoriaDTO == null) {
-            throw new IllegalArgumentException("El DTO de categoría no puede ser nulo");
+    private Categoria buscarOCrearCategoria(CategoriaDTO categoriaDTO, String tipoItemItemMenu) {
+        if (categoriaDTO == null || categoriaDTO.getId() == 0) {
+            throw new IllegalArgumentException("El DTO de categoría no puede ser nulo y debe tener un ID válido");
         }
 
-        // Buscar la categoría existente por ID
         return categoriaService.buscarCategoriaPorId(categoriaDTO.getId())
                 .map(categoria -> {
-                    // Validar que el tipoItem sea compatible con la categoría existente
-                    if (!categoria.getTipoItem().equalsIgnoreCase(categoriaDTO.getTipoItem())) {
+                    // Validar que el tipoItem de la categoría coincida con el tipoItem del ItemMenu
+                    if (!categoria.getTipoItem().equalsIgnoreCase(tipoItemItemMenu)) {
                         throw new IllegalArgumentException(
-                                "El tipoItem de la categoría existente no coincide con el esperado. "
-                                        + "Esperado: " + categoriaDTO.getTipoItem()
+                                "El tipoItem de la categoría existente no coincide con el del ItemMenu. "
+                                        + "Esperado: " + tipoItemItemMenu
                                         + ", Actual: " + categoria.getTipoItem()
                         );
                     }
-
-                    // Opcional: actualizar otros atributos (como descripción) si es necesario
-                    if (!categoria.getDescripcion().equals(categoriaDTO.getDescripcion())) {
-                        categoria.setDescripcion(categoriaDTO.getDescripcion());
-                    }
-
                     return categoria; // Reutilizar la categoría existente
                 })
-                // Si no existe, crear una nueva categoría
-                .orElseGet(() -> new Categoria(
-                        categoriaDTO.getId(),
-                        categoriaDTO.getDescripcion(),
-                        categoriaDTO.getTipoItem()
-                ));
+                .orElseGet(() -> {
+                    // Crear una nueva categoría si no existe
+                    if (categoriaDTO.getDescripcion() == null || categoriaDTO.getTipoItem() == null) {
+                        throw new IllegalArgumentException("Para crear una nueva categoría, se requieren 'descripcion' y 'tipoItem'");
+                    }
+                    // Validar que el tipoItem proporcionado coincida con el del ItemMenu
+                    if (!categoriaDTO.getTipoItem().equalsIgnoreCase(tipoItemItemMenu)) {
+                        throw new IllegalArgumentException(
+                                "El tipoItem de la nueva categoría no coincide con el del ItemMenu. "
+                                        + "Esperado: " + tipoItemItemMenu
+                                        + ", Proporcionado: " + categoriaDTO.getTipoItem()
+                        );
+                    }
+                    Categoria nuevaCategoria = new Categoria();
+                    nuevaCategoria.setId(categoriaDTO.getId());
+                    nuevaCategoria.setDescripcion(categoriaDTO.getDescripcion());
+                    nuevaCategoria.setTipoItem(categoriaDTO.getTipoItem());
+                    return nuevaCategoria;
+                });
     }
+
+
 
 }

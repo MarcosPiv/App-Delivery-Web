@@ -19,7 +19,7 @@ public abstract class ItemMenu {
     private String nombre;
     private String descripcion;
     private double precio;
-    @OneToOne
+    @ManyToOne(cascade = {CascadeType.ALL,CascadeType.REMOVE})
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
     private double peso;

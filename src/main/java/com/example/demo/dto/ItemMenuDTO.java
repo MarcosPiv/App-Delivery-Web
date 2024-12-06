@@ -1,6 +1,8 @@
 package com.example.demo.dto;
 
-import com.example.demo.serializers.ItemMenuDTODeserializer;
+//import com.example.demo.serializers.ItemMenuDTODeserializer;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +12,16 @@ import lombok.Setter;
 @Getter
 @Setter
 
-@JsonDeserialize(using = ItemMenuDTODeserializer.class)
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "tipoItem"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ComidaDTO.class, name = "Comida"),
+        @JsonSubTypes.Type(value = BebidaDTO.class, name = "Bebida")
+})
 public abstract class ItemMenuDTO {
     private int id;
     private String nombre;
