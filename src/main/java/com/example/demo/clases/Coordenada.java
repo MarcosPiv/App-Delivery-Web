@@ -1,5 +1,6 @@
 package com.example.demo.clases;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 
-@Embeddable // indica que es un atributo embebido
+@Embeddable // Indica que es un atributo embebido
 public class Coordenada {
     private double lat;
     private double lng;

@@ -33,7 +33,7 @@ public class Cliente {
         this.cuit = cuit;
         this.email = email;
         this.direccion = direccion;
-        //this.coordenada = coordenada;
+        this.coordenada = coordenada;
         this.nombre = nombre;
     }
 }

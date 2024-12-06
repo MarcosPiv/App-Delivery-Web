@@ -5,6 +5,9 @@ import org.springframework.stereotype.Repository;
 
 import com.example.demo.clases.Cliente;
 
+import java.util.List;
+
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Integer>  {
+    List<Cliente> findByNombreContainingIgnoreCase(String nombre);
 } 
