@@ -3,27 +3,34 @@ package com.example.demo.mappers;
 import com.example.demo.dto.*;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.*;
+import com.example.demo.servicios.ClienteService;
+import com.example.demo.servicios.IitemMenuService;
+import com.example.demo.servicios.VendedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Component
 public class PedidoMapper {
 
-    private final ItemMenuMapper itemMenuMapper;
-    private final ClienteMapper clienteMapper;
-    private final VendedorMapper vendedorMapper;
+    private final ClienteService clienteService;
+    private final VendedorService vendedorService;
+    private final IitemMenuService itemMenuService;
 
     @Autowired
-    public PedidoMapper(ItemMenuMapper itemMenuMapper, ClienteMapper clienteMapper, VendedorMapper vendedorMapper) {
-        this.itemMenuMapper = itemMenuMapper;
-        this.clienteMapper = clienteMapper;
-        this.vendedorMapper = vendedorMapper;
+    public PedidoMapper(ClienteService clienteService, VendedorService vendedorService, IitemMenuService itemMenuService) {
+        this.clienteService = clienteService;
+        this.vendedorService = vendedorService;
+        this.itemMenuService = itemMenuService;
     }
-
+    /**
+     * Convierte una entidad Pedido a su correspondiente DTO PedidoDTO.
+     *
+     * @param pedido la entidad Pedido a convertir.
+     * @return el DTO correspondiente.
+     */
     public PedidoDTO convertirADTO(Pedido pedido) {
         if (pedido == null) {
             return null;
@@ -31,16 +38,20 @@ public class PedidoMapper {
 
         PedidoDTO dto = new PedidoDTO();
         dto.setId(pedido.getId());
-        dto.setCliente(clienteMapper.convertirADTO(pedido.getCliente()));
-        dto.setVendedor(vendedorMapper.convertirADTO(pedido.getRestaurante()));
+        dto.setClienteId(pedido.getCliente().getId());
+        dto.setVendedorId(pedido.getRestaurante().getId());
         dto.setPrecioTotal(pedido.getPrecioTotal());
-        // Se pasa el PedidoDTO recién creado a la función de mapeo de detalles
-        dto.setDetallesPedido(convertirListaDetallesADTO(pedido.getDetallesPedido(), dto));
+        dto.setDetallesPedido(convertirListaDetallesADTO(pedido.getDetallesPedido()));
         dto.setEstado(pedido.getEstado());
-
         return dto;
     }
 
+    /**
+     * Convierte un DTO PedidoDTO a su correspondiente entidad Pedido.
+     *
+     * @param dto el DTO PedidoDTO a convertir.
+     * @return la entidad correspondiente.
+     */
     public Pedido convertirAEntidad(PedidoDTO dto) {
         if (dto == null) {
             return null;
@@ -48,34 +59,49 @@ public class PedidoMapper {
 
         Pedido pedido = new Pedido();
         pedido.setId(dto.getId());
-        pedido.setCliente(clienteMapper.convertirAEntidad(dto.getCliente()));
-        pedido.setRestaurante(vendedorMapper.convertirAEntidad(dto.getVendedor()));
+        pedido.setCliente(clienteService.obtenerClientePorId(dto.getClienteId()));
+        pedido.setRestaurante(vendedorService.obtenerVendedorPorId(dto.getVendedorId()));
         pedido.setPrecioTotal(dto.getPrecioTotal());
-        pedido.setDetallesPedido(convertirListaDetallesAEntidad(dto.getDetallesPedido(), pedido));
         pedido.setEstado(dto.getEstado() != null ? dto.getEstado() : Estado.PENDIENTE);
+
+        // Convertir y agregar DetallePedido
+        List<DetallePedido> detalles = convertirListaDetallesAEntidad(dto.getDetallesPedido(), pedido);
+        for (DetallePedido detalle : detalles) {
+            pedido.agregarDetalle(detalle);
+        }
 
         return pedido;
     }
-    // Ahora convertimos la lista de detalles pasando el PedidoDTO para setearlo en cada detalle
-    private List<DetallePedidoDTO> convertirListaDetallesADTO(List<DetallePedido> detalles, PedidoDTO pedidoDTO) {
+
+    /**
+     * Convierte una lista de entidades DetallePedido a una lista de DetallePedidoDTO.
+     *
+     * @param detalles la lista de entidades DetallePedido.
+     * @return la lista correspondiente de DetallePedidoDTO.
+     */
+    private List<DetallePedidoDTO> convertirListaDetallesADTO(List<DetallePedido> detalles) {
         if (detalles == null) return new ArrayList<>();
         List<DetallePedidoDTO> listaDTO = new ArrayList<>();
         for (DetallePedido d : detalles) {
             DetallePedidoDTO dto = new DetallePedidoDTO();
             dto.setId(d.getId());
             dto.setCantidad(d.getCantidad());
-            dto.setPrecio(d.getPrecio());
-            // Convertimos el ItemMenu asociado a DTO
+            // Asignar solo el itemMenuId
             if (d.getItem() != null) {
-                ItemMenuDTO itemDTO = itemMenuMapper.convertirADTO(d.getItem());
-                dto.setItemMenu(itemDTO);
+                dto.setItemMenuId(d.getItem().getId());
             }
-            // Seteamos el pedidoDTO para evitar recursión (ya tenemos el pedidoDTO principal creado)
-            dto.setPedido(pedidoDTO);
             listaDTO.add(dto);
         }
         return listaDTO;
     }
+
+    /**
+     * Convierte una lista de DetallePedidoDTO a una lista de entidades DetallePedido.
+     *
+     * @param detallesDTO la lista de DetallePedidoDTO.
+     * @param pedido      la entidad Pedido a la que pertenecen los detalles.
+     * @return la lista correspondiente de entidades DetallePedido.
+     */
     private ArrayList<DetallePedido> convertirListaDetallesAEntidad(List<DetallePedidoDTO> detallesDTO, Pedido pedido) {
         if (detallesDTO == null || detallesDTO.isEmpty()) {
             throw new IllegalArgumentException("La lista de detalles no puede ser nula o vacía");
@@ -84,32 +110,21 @@ public class PedidoMapper {
         ArrayList<DetallePedido> lista = new ArrayList<>();
         for (DetallePedidoDTO dto : detallesDTO) {
             // Validar que el DTO tiene la información necesaria
-            if (dto.getId() == 0) {
-                throw new IllegalArgumentException("El ID del detalle de pedido no puede ser 0");
+            if (dto.getItemMenuId() == 0) {
+                throw new IllegalArgumentException("El ID del ItemMenu no puede ser 0");
             }
-
-            DetallePedido d = new DetallePedido();
-            d.setId(dto.getId());
-            d.setPedido(pedido); // Establecer el pedido padre conocido
-            d.setCantidad(dto.getCantidad());
-            d.setPrecio(dto.getPrecio());
-
-            // Validar y mapear el itemMenu
-            if (dto.getItemMenu() != null) {
-                ItemMenu item = itemMenuMapper.convertirAEntidad(dto.getItemMenu());
-                if (item == null) {
-                    throw new IllegalArgumentException("No se pudo mapear el ItemMenu con el ID proporcionado");
-                }
-                d.setItem(item);
-            } else {
-                throw new IllegalArgumentException("El ItemMenu no puede ser nulo en el DetallePedido");
-            }
-
-            // Agregar el detalle a la lista
-            lista.add(d);
+            DetallePedido detalle = new DetallePedido();
+            detalle.setCantidad(dto.getCantidad());
+            detalle.setPrecio(dto.getPrecio());
+            detalle.setId(dto.getId());
+            // Obtener ItemMenu gestionado a través del servicio
+            ItemMenu itemMenu = itemMenuService.obtenerItemMenu(dto.getItemMenuId());
+            detalle.setItem(itemMenu);
+            detalle.setPedido(pedido); // Establecer el pedido padre conocido
+            lista.add(detalle);
         }
 
         return lista;
     }
-
 }
+

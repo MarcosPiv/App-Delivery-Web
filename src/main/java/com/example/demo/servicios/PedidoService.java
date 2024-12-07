@@ -5,12 +5,16 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Estado;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.DetallePedido;
-import com.example.demo.model.ItemMenu;
+import com.example.demo.repositorio.DetallePedidoRepository;
 import com.example.demo.repositorio.PedidoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.beans.Transient;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PedidoService implements IPedidoService {
@@ -19,13 +23,15 @@ public class PedidoService implements IPedidoService {
     private final IitemMenuService itemMenuService;
     private final IDetallePedidoService detallePedidoService;
     private final ICategoriaService categoriaService;
+    private final DetallePedidoRepository detallePedidoRepository;
 
     @Autowired
-    public PedidoService(PedidoRepository pedidoRepository, IitemMenuService itemMenuService, IDetallePedidoService detallePedidoService, ICategoriaService categoriaService) {
+    public PedidoService(PedidoRepository pedidoRepository, IitemMenuService itemMenuService, IDetallePedidoService detallePedidoService, ICategoriaService categoriaService, DetallePedidoRepository detallePedidoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.itemMenuService = itemMenuService;
         this.detallePedidoService = detallePedidoService;
         this.categoriaService = categoriaService;
+        this.detallePedidoRepository = detallePedidoRepository;
     }
 
 
@@ -35,31 +41,17 @@ public class PedidoService implements IPedidoService {
     }
 
     @Override
+    @Transactional
     public Pedido crearPedido(Pedido pedido) {
         if (pedidoRepository.existsById(pedido.getId())) {
             throw new ResourceAlreadyExistsException("No se puede crear. El pedido con ID " + pedido.getId() + " ya existe.");
         }
-
-        // Guardamos los detalles del pedido
+        //eliminar los id de detalles de pedido
         for (DetallePedido detalle : pedido.getDetallesPedido()) {
-            // Verificamos si el ItemMenu existe y si no lo creamos
-            ItemMenu itemMenu = detalle.getItem();
-            if (itemMenu != null) {
-                if (!itemMenuService.existeItemMenu(itemMenu.getId())) {
-                    // Verificamos si la categoría del ItemMenu existe y si no la creamos
-                    if (!categoriaService.existeCategoria(itemMenu.getCategoria().getId())) {
-                        categoriaService.crearCategoria(itemMenu.getCategoria());
-                    }
-                    itemMenuService.crearItemMenu(itemMenu);
-                }
-            }
-            // Asignamos el pedido al detalle y lo guardamos
-            detalle.setPedido(pedido);
-            detallePedidoService.crearDetallePedido(detalle);
+            detalle.setId(0);
         }
-
-
         return pedidoRepository.save(pedido);
+
     }
 
     @Override
@@ -75,26 +67,18 @@ public class PedidoService implements IPedidoService {
 
     @Override
     public Pedido actualizarPedido(Pedido pedido) {
-        // Aseguramos que el pedido exista antes de actualizar
-        if (!existePedido(pedido.getId())) {
+        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedido.getId());
+        if (pedidoOptional.isEmpty()) {
             throw new ResourceNotFoundException("El pedido con ID " + pedido.getId() + " no existe.");
+        }else {
+            Pedido pedidoActualizado = pedidoOptional.get();
+            pedidoActualizado.setCliente(pedido.getCliente());
+            pedidoActualizado.setRestaurante(pedido.getRestaurante());
+            pedidoActualizado.setPrecioTotal(pedido.getPrecioTotal());
+           pedidoActualizado.setDetallesPedido((ArrayList<DetallePedido>) pedido.getDetallesPedido());
+            pedidoActualizado.setEstado(pedido.getEstado());
+            return pedidoRepository.save(pedidoActualizado);
         }
-
-        // Actualizamos los detalles del pedido
-        for (DetallePedido detalle : pedido.getDetallesPedido()) {
-            if (detalle.getItem() != null) {
-                // Verificamos si el ItemMenu existe y si no lo creamos
-                if(!itemMenuService.existeItemMenu(detalle.getItem().getId())) {
-                    // Verificamos si la categoría del ItemMenu existe y si no la creamos
-                    if (!categoriaService.existeCategoria(detalle.getItem().getCategoria().getId())) {
-                        categoriaService.crearCategoria(detalle.getItem().getCategoria());
-                    }
-                    itemMenuService.crearItemMenu(detalle.getItem());
-                }
-            }
-        }
-
-        return pedidoRepository.save(pedido);
     }
 
     @Override

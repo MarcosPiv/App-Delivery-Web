@@ -17,8 +17,8 @@ public class DetallePedido {
     @OneToOne
     @JoinColumn(name = "item_id")
     private ItemMenu item;
-    @ManyToOne
-    @JoinColumn(name = "pedido_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
     private int cantidad;
     private double precio;

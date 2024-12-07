@@ -13,7 +13,6 @@ public class DetallePedidoDTO {
     private int id;
     private int cantidad;
     private double precio;
-    private ItemMenuDTO itemMenu;
-    private PedidoDTO pedido;
+    private int itemMenuId;
 }
 

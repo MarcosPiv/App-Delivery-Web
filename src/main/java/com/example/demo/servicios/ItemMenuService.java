@@ -35,6 +35,7 @@ public class ItemMenuService implements IitemMenuService {
         if (itemMenuRepository.existsById(itemMenu.getId())) {
             throw new ResourceAlreadyExistsException("No se puede crear. El ítem con ID " + itemMenu.getId() + " ya existe.");
         }
+
         return itemMenuRepository.save(itemMenu);
     }
 

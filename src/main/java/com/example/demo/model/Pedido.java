@@ -11,6 +11,7 @@ import com.example.demo.patrones.strategy.PagoStrategy;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 @Setter
 @Getter
@@ -28,7 +29,8 @@ public class Pedido extends Observable {
     @JoinColumn(name = "vendedor_id")
     private Vendedor restaurante;
     private double precioTotal;
-    @OneToMany(mappedBy = "pedido", targetEntity = DetallePedido.class, cascade = CascadeType.ALL)
+    @Getter
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private List<DetallePedido> detallesPedido;
     private Estado estado;
     @Transient // indica que no se persiste en la base de datos
@@ -37,7 +39,7 @@ public class Pedido extends Observable {
     private ArrayList<Observer> observers = new ArrayList<>();
 
     public Pedido() {
-    this.detallesPedido = new ArrayList<>();
+        detallesPedido = new ArrayList<>();
     }
 
     public Pedido(int id, Cliente cliente, Vendedor restaurante, double precioTotal, ArrayList<DetallePedido> detallesPedido, Estado estado) {
@@ -111,10 +113,6 @@ public class Pedido extends Observable {
 
     public void setPrecioTotal(double precioTotal) {
         this.precioTotal = precioTotal;
-    }
-
-    public ArrayList<DetallePedido> getDetallesPedido() {
-        return (ArrayList<DetallePedido>) detallesPedido;
     }
 
     public void setDetallesPedido(ArrayList<DetallePedido> detallesPedido) {

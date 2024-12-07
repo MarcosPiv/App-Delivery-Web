@@ -19,10 +19,10 @@ public class PedidoDTO {
     private int id;
 
     @NotNull(message = "El cliente no puede ser nulo")
-    private ClienteDTO cliente;
+    private int clienteId;
 
     @NotNull(message = "El vendedor no puede ser nulo")
-    private VendedorDTO vendedor;
+    private int vendedorId;
 
     @PositiveOrZero(message = "El precio total no puede ser negativo")
     private double precioTotal;
