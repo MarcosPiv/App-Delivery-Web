@@ -1,7 +1,7 @@
 package com.example.demo.servicios;
 
-import com.example.demo.clases.Categoria;
-import com.example.demo.clases.ItemMenu;
+import com.example.demo.model.Categoria;
+import com.example.demo.model.ItemMenu;
 import com.example.demo.repositorio.CategoriaRepository;
 import com.example.demo.repositorio.ItemMenuRepository;
 import jakarta.transaction.Transactional;
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ItemMenuService implements IitemMenuService {

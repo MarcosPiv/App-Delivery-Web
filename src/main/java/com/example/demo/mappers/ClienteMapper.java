@@ -1,6 +1,6 @@
 package com.example.demo.mappers;
 
-import com.example.demo.clases.Cliente;
+import com.example.demo.model.Cliente;
 import com.example.demo.dto.ClienteDTO;
 import org.springframework.stereotype.Component;
 

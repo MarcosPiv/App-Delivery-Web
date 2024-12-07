@@ -1,9 +1,9 @@
 package com.example.demo.mappers;
 
-import com.example.demo.clases.Bebida;
-import com.example.demo.clases.Categoria;
-import com.example.demo.clases.Comida;
-import com.example.demo.clases.ItemMenu;
+import com.example.demo.model.Bebida;
+import com.example.demo.model.Categoria;
+import com.example.demo.model.Comida;
+import com.example.demo.model.ItemMenu;
 import com.example.demo.dto.BebidaDTO;
 import com.example.demo.dto.CategoriaDTO;
 import com.example.demo.dto.ComidaDTO;

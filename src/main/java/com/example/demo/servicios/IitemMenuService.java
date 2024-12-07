@@ -1,7 +1,6 @@
 package com.example.demo.servicios;
 
-import com.example.demo.clases.ItemMenu;
-import org.springframework.stereotype.Repository;
+import com.example.demo.model.ItemMenu;
 
 import java.util.List;
 

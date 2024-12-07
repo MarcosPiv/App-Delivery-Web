@@ -2,8 +2,8 @@ package com.example.demo.controllers;
 
 
 
-import com.example.demo.clases.Categoria;
-import com.example.demo.clases.ItemMenu;
+import com.example.demo.model.Categoria;
+import com.example.demo.model.ItemMenu;
 import com.example.demo.dto.CategoriaDTO;
 import com.example.demo.dto.ItemMenuDTO;
 import com.example.demo.mappers.ItemMenuMapper;
@@ -106,7 +106,7 @@ public ResponseEntity<ItemMenuDTO> crearItemMenu(@Valid @RequestBody ItemMenuDTO
         try {
             itemMenuService.eliminarItemMenu(id);
 
-            return ResponseEntity.ok().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();

@@ -1,4 +1,4 @@
-package com.example.demo.clases;
+package com.example.demo.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,9 +26,9 @@ public class Vendedor {
     @Getter
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "itemMenu_id")
-    private ArrayList<ItemMenu> itemsMenu = new ArrayList<>();
+    private List<ItemMenu> itemsMenu = new ArrayList<>();
     @OneToMany(mappedBy = "restaurante", targetEntity = Pedido.class, cascade = CascadeType.ALL)
-    private ArrayList<Pedido> listaDePedidos;
+    private List<Pedido> listaDePedidos;
 
 
     public Vendedor(int id, String nombre, String direccion, Coordenada coordenada) {

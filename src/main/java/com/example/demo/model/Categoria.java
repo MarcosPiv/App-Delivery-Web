@@ -1,4 +1,4 @@
-package com.example.demo.clases;
+package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;

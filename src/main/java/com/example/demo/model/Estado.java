@@ -1,6 +1,4 @@
-package com.example.demo.clases;
-
-import jakarta.persistence.Enumerated;
+package com.example.demo.model;
 
 public enum Estado {
     PENDIENTE, EN_PREPARACION, EN_ENVIO, RECIBIDO

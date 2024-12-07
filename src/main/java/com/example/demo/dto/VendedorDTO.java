@@ -10,11 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class ClienteDTO {
+public class VendedorDTO {
     private int id;
-    private String cuit;
-    private String email;
+    private String nombre;
     private String direccion;
     private Coordenada coordenada;
-    private String nombre;
 }

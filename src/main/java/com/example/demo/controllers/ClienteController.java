@@ -1,5 +1,5 @@
 package com.example.demo.controllers;
-import com.example.demo.clases.Cliente;
+import com.example.demo.model.Cliente;
 import com.example.demo.dto.ClienteDTO;
 import com.example.demo.mappers.ClienteMapper;
 import com.example.demo.servicios.*;

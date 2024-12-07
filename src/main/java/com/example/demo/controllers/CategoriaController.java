@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.clases.Categoria;
+import com.example.demo.model.Categoria;
 import com.example.demo.dto.CategoriaDTO;
 import com.example.demo.servicios.ICategoriaService;
 import jakarta.validation.Valid;
@@ -33,7 +33,7 @@ public class CategoriaController {
                     categoriaGuardada.getTipoItem()
             );
 
-            return ResponseEntity.ok(respuestaDTO);
+            return  ResponseEntity.status(HttpStatus.CREATED).body(respuestaDTO);
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
@@ -91,7 +91,7 @@ public class CategoriaController {
             if (!eliminado) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            return ResponseEntity.ok().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

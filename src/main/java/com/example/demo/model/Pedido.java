@@ -1,4 +1,4 @@
-package com.example.demo.clases;
+package com.example.demo.model;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,6 @@ import com.example.demo.patrones.strategy.PagarTransferencia;
 import com.example.demo.patrones.strategy.PagoStrategy;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter

@@ -1,6 +1,5 @@
-package com.example.demo.clases;
+package com.example.demo.model;
 
-import jakarta.annotation.Generated;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

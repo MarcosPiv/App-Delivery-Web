@@ -1,6 +1,6 @@
 package com.example.demo.servicios;
 
-import com.example.demo.clases.Categoria;
+import com.example.demo.model.Categoria;
 
 import java.util.Optional;
 
