@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.example.demo.patrones.observer.Observable;
 import com.example.demo.patrones.observer.Observer;
@@ -17,7 +18,8 @@ import lombok.Setter;
 @Entity
 public class Pedido extends Observable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pedido_seq")
+    @SequenceGenerator(name = "pedido_seq", sequenceName = "pedido_sequence", allocationSize = 1)
     private int id;
     @OneToOne
     @JoinColumn(name = "cliente_id")
@@ -27,7 +29,7 @@ public class Pedido extends Observable {
     private Vendedor restaurante;
     private double precioTotal;
     @OneToMany(mappedBy = "pedido", targetEntity = DetallePedido.class, cascade = CascadeType.ALL)
-    private ArrayList<DetallePedido> detallesPedido;
+    private List<DetallePedido> detallesPedido;
     private Estado estado;
     @Transient // indica que no se persiste en la base de datos
     private PagoStrategy tipoDePago;
@@ -35,7 +37,7 @@ public class Pedido extends Observable {
     private ArrayList<Observer> observers = new ArrayList<>();
 
     public Pedido() {
-    detallesPedido = new ArrayList<>();
+    this.detallesPedido = new ArrayList<>();
     }
 
     public Pedido(int id, Cliente cliente, Vendedor restaurante, double precioTotal, ArrayList<DetallePedido> detallesPedido, Estado estado) {
@@ -112,7 +114,7 @@ public class Pedido extends Observable {
     }
 
     public ArrayList<DetallePedido> getDetallesPedido() {
-        return detallesPedido;
+        return (ArrayList<DetallePedido>) detallesPedido;
     }
 
     public void setDetallesPedido(ArrayList<DetallePedido> detallesPedido) {

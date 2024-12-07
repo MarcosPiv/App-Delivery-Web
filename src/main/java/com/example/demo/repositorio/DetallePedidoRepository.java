@@ -1,10 +1,9 @@
 package com.example.demo.repositorio;
 
-import com.example.demo.model.ItemMenu;
+import com.example.demo.model.DetallePedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ItemMenuRepository extends JpaRepository<ItemMenu, Integer> {
-    boolean existsById(int id);
+public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Integer> {
 }

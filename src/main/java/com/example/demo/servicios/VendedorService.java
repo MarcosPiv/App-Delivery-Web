@@ -1,5 +1,7 @@
 package com.example.demo.servicios;
 
+import com.example.demo.exception.ResourceAlreadyExistsException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Vendedor;
 import com.example.demo.repositorio.VendedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class VendedorService implements IVendedorService {
 
     @Override
     public Vendedor crearVendedor(Vendedor vendedor) {
+        if (vendedorRepository.existsById(vendedor.getId())) {
+            throw new ResourceAlreadyExistsException("No se puede crear. El vendedor con ID " + vendedor.getId() + " ya existe.");
+        }
         return vendedorRepository.save(vendedor);
     }
 

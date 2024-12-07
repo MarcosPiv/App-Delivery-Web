@@ -1,11 +1,11 @@
 package com.example.demo.servicios;
 
+import com.example.demo.exception.ResourceAlreadyExistsException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Categoria;
 import com.example.demo.repositorio.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class CategoriaService implements ICategoriaService {
@@ -16,43 +16,43 @@ public class CategoriaService implements ICategoriaService {
         this.categoriaRepository = categoriaRepository;
     }
 
-    // Crear una nueva categoría
     public Categoria crearCategoria(Categoria categoria) {
-        return categoriaRepository.save(categoria); // Devuelve la entidad guardada
+        if (categoriaRepository.existsById(categoria.getId())) {
+            throw new ResourceAlreadyExistsException("No se puede crear. La categoría con ID " + categoria.getId() + " ya existe.");
+        }
+        return categoriaRepository.save(categoria);
     }
 
-    // Buscar una categoría por su ID
-    public Optional<Categoria> buscarCategoriaPorId(int id) {
-        return categoriaRepository.findById(id);
+
+    public Categoria buscarCategoriaPorId(int id) {
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("La categoría con ID " + id + " no existe."));
     }
 
-    // Modificar una categoría existente
     public Categoria modificarCategoria(Categoria categoriaExistente) {
         if (!categoriaRepository.existsById(categoriaExistente.getId())) {
-            throw new IllegalArgumentException("La categoría con ID " + categoriaExistente.getId() + " no existe.");
+            throw new ResourceNotFoundException("La categoría con ID " + categoriaExistente.getId() + " no existe.");
         }
 
-        // Actualizar los campos
         Categoria categoriaActualizada = categoriaRepository.findById(categoriaExistente.getId())
                 .map(categoria -> {
                     categoria.setDescripcion(categoriaExistente.getDescripcion());
                     categoria.setTipoItem(categoriaExistente.getTipoItem());
                     return categoria;
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Error al actualizar la categoría con ID " + categoriaExistente.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("La categoría con ID " + categoriaExistente.getId() + " no existe."));
 
-        // Guardar y devolver la categoría modificada
         return categoriaRepository.save(categoriaActualizada);
     }
 
-    // Eliminar una categoría por su ID
-    public boolean eliminarCategoria(int id) {
+    public void eliminarCategoria(int id) {
         if (!categoriaRepository.existsById(id)) {
-            throw new IllegalArgumentException("La categoría con ID " + id + " no existe.");
+            throw new ResourceNotFoundException("La categoría con ID " + id + " no existe.");
         }
-
-        // Eliminar la categoría
         categoriaRepository.deleteById(id);
-        return true; // Retorna true si la operación fue exitosa
+    }
+
+    public boolean existeCategoria(int id) {
+        return categoriaRepository.existsById(id);
     }
 }

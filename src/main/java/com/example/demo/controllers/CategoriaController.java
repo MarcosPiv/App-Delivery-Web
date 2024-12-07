@@ -1,15 +1,13 @@
 package com.example.demo.controllers;
 
-import com.example.demo.model.Categoria;
 import com.example.demo.dto.CategoriaDTO;
+import com.example.demo.model.Categoria;
 import com.example.demo.servicios.ICategoriaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/categoria")
@@ -23,77 +21,57 @@ public class CategoriaController {
 
     @PostMapping("/crear")
     public ResponseEntity<CategoriaDTO> crearNuevaCategoria(@Valid @RequestBody CategoriaDTO categoriaDTO) {
-        try {
-            Categoria categoria = new Categoria(categoriaDTO.getId(), categoriaDTO.getDescripcion(), categoriaDTO.getTipoItem());
-            Categoria categoriaGuardada = categoriaService.crearCategoria(categoria);
+        Categoria categoria = new Categoria(categoriaDTO.getId(), categoriaDTO.getDescripcion(), categoriaDTO.getTipoItem());
+        Categoria categoriaGuardada = categoriaService.crearCategoria(categoria);
 
-            CategoriaDTO respuestaDTO = new CategoriaDTO(
-                    categoriaGuardada.getId(),
-                    categoriaGuardada.getDescripcion(),
-                    categoriaGuardada.getTipoItem()
-            );
+        CategoriaDTO respuestaDTO = new CategoriaDTO(
+                categoriaGuardada.getId(),
+                categoriaGuardada.getDescripcion(),
+                categoriaGuardada.getTipoItem()
+        );
 
-            return  ResponseEntity.status(HttpStatus.CREATED).body(respuestaDTO);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuestaDTO);
     }
 
     @GetMapping("/buscar/{id}")
     public ResponseEntity<CategoriaDTO> buscarCategoria(@PathVariable int id) {
-        try {
-            Optional<Categoria> categoria = categoriaService.buscarCategoriaPorId(id);
-            if (categoria.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            CategoriaDTO categoriaDTO = new CategoriaDTO(
-                    categoria.get().getId(),
-                    categoria.get().getDescripcion(),
-                    categoria.get().getTipoItem()
-            );
+        Categoria categoria = categoriaService.buscarCategoriaPorId(id);
 
-            return ResponseEntity.ok(categoriaDTO);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        CategoriaDTO categoriaDTO = new CategoriaDTO(
+                categoria.getId(),
+                categoria.getDescripcion(),
+                categoria.getTipoItem()
+        );
+
+        return ResponseEntity.ok(categoriaDTO);
     }
 
     @PutMapping("/modificar/{id}")
     public ResponseEntity<CategoriaDTO> modificarCategoria(
             @PathVariable int id,
             @Valid @RequestBody CategoriaDTO categoriaDTO) {
-        try {
-            Optional<Categoria> categoriaExistente = categoriaService.buscarCategoriaPorId(id);
-            if (categoriaExistente.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            categoriaExistente.get().setDescripcion(categoriaDTO.getDescripcion());
-            categoriaExistente.get().setTipoItem(categoriaDTO.getTipoItem());
 
-            Categoria categoriaActualizada = categoriaService.modificarCategoria(categoriaExistente.get());
+        // Primero obtener la categoría existente
+        Categoria categoriaExistente = categoriaService.buscarCategoriaPorId(id);
 
-            CategoriaDTO categoriaActualizadaDTO = new CategoriaDTO(
-                    categoriaActualizada.getId(),
-                    categoriaActualizada.getDescripcion(),
-                    categoriaActualizada.getTipoItem()
-            );
+        // Actualizar campos
+        categoriaExistente.setDescripcion(categoriaDTO.getDescripcion());
+        categoriaExistente.setTipoItem(categoriaDTO.getTipoItem());
 
-            return ResponseEntity.ok(categoriaActualizadaDTO);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        Categoria categoriaActualizada = categoriaService.modificarCategoria(categoriaExistente);
+
+        CategoriaDTO categoriaActualizadaDTO = new CategoriaDTO(
+                categoriaActualizada.getId(),
+                categoriaActualizada.getDescripcion(),
+                categoriaActualizada.getTipoItem()
+        );
+
+        return ResponseEntity.ok(categoriaActualizadaDTO);
     }
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminarCategoria(@PathVariable int id) {
-        try {
-            boolean eliminado = categoriaService.eliminarCategoria(id);
-            if (!eliminado) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        categoriaService.eliminarCategoria(id);
+        return ResponseEntity.noContent().build();
     }
 }

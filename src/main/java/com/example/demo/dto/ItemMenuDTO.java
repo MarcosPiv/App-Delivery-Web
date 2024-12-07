@@ -4,6 +4,11 @@ package com.example.demo.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,14 +29,25 @@ import lombok.Setter;
 })
 public abstract class ItemMenuDTO {
     private int id;
+    @NotBlank(message = "El nombre no puede estar vacío")
+    @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")
     private String nombre;
+
+    @NotBlank(message = "La descripción no puede estar vacía")
+    @Size(max = 200, message = "La descripción no puede tener más de 200 caracteres")
     private String descripcion;
+
+    @Min(value = 0, message = "El precio no puede ser negativo")
     private double precio;
-    private CategoriaDTO categoria; // Se referencia al DTO de Categoria
+
+    @NotNull(message = "La categoría no puede ser nula")
+    private CategoriaDTO categoria;
+
+    @Min(value = 0, message = "El peso no puede ser negativo")
     private double peso;
 
     // Métodos abstractos para diferenciar entre comida y bebida
     public abstract boolean esComida();
     public abstract boolean esBebida();
-    public abstract boolean aptoVegano();
+    public abstract boolean isAptoVegano();
 }

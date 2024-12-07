@@ -1,5 +1,6 @@
 package com.example.demo.mappers;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Bebida;
 import com.example.demo.model.Categoria;
 import com.example.demo.model.Comida;
@@ -110,38 +111,39 @@ public class ItemMenuMapper {
             throw new IllegalArgumentException("El DTO de categoría no puede ser nulo y debe tener un ID válido");
         }
 
-        return categoriaService.buscarCategoriaPorId(categoriaDTO.getId())
-                .map(categoria -> {
-                    // Validar que el tipoItem de la categoría coincida con el tipoItem del ItemMenu
-                    if (!categoria.getTipoItem().equalsIgnoreCase(tipoItemItemMenu)) {
-                        throw new IllegalArgumentException(
-                                "El tipoItem de la categoría existente no coincide con el del ItemMenu. "
-                                        + "Esperado: " + tipoItemItemMenu
-                                        + ", Actual: " + categoria.getTipoItem()
-                        );
-                    }
-                    return categoria; // Reutilizar la categoría existente
-                })
-                .orElseGet(() -> {
-                    // Crear una nueva categoría si no existe
-                    if (categoriaDTO.getDescripcion() == null || categoriaDTO.getTipoItem() == null) {
-                        throw new IllegalArgumentException("Para crear una nueva categoría, se requieren 'descripcion' y 'tipoItem'");
-                    }
-                    // Validar que el tipoItem proporcionado coincida con el del ItemMenu
-                    if (!categoriaDTO.getTipoItem().equalsIgnoreCase(tipoItemItemMenu)) {
-                        throw new IllegalArgumentException(
-                                "El tipoItem de la nueva categoría no coincide con el del ItemMenu. "
-                                        + "Esperado: " + tipoItemItemMenu
-                                        + ", Proporcionado: " + categoriaDTO.getTipoItem()
-                        );
-                    }
-                    Categoria nuevaCategoria = new Categoria();
-                    nuevaCategoria.setId(categoriaDTO.getId());
-                    nuevaCategoria.setDescripcion(categoriaDTO.getDescripcion());
-                    nuevaCategoria.setTipoItem(categoriaDTO.getTipoItem());
-                    return nuevaCategoria;
-                });
+        try {
+            Categoria categoria = categoriaService.buscarCategoriaPorId(categoriaDTO.getId());
+            // Validar que el tipoItem coincida
+            if (!categoria.getTipoItem().equalsIgnoreCase(tipoItemItemMenu)) {
+                throw new IllegalArgumentException(
+                        "El tipoItem de la categoría existente no coincide con el del ItemMenu. "
+                                + "Esperado: " + tipoItemItemMenu
+                                + ", Actual: " + categoria.getTipoItem()
+                );
+            }
+            return categoria;
+        } catch (ResourceNotFoundException ex) {
+            // Crear una nueva categoría si no existe
+            if (categoriaDTO.getDescripcion() == null || categoriaDTO.getTipoItem() == null) {
+                throw new IllegalArgumentException("Para crear una nueva categoría, se requieren 'descripcion' y 'tipoItem'");
+            }
+
+            if (!categoriaDTO.getTipoItem().equalsIgnoreCase(tipoItemItemMenu)) {
+                throw new IllegalArgumentException(
+                        "El tipoItem de la nueva categoría no coincide con el del ItemMenu. "
+                                + "Esperado: " + tipoItemItemMenu
+                                + ", Proporcionado: " + categoriaDTO.getTipoItem()
+                );
+            }
+
+            Categoria nuevaCategoria = new Categoria();
+            nuevaCategoria.setId(categoriaDTO.getId());
+            nuevaCategoria.setDescripcion(categoriaDTO.getDescripcion());
+            nuevaCategoria.setTipoItem(categoriaDTO.getTipoItem());
+            return nuevaCategoria;
+        }
     }
+
 
 
 

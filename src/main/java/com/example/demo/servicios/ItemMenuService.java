@@ -1,6 +1,11 @@
 package com.example.demo.servicios;
 
+import com.example.demo.exception.ResourceAlreadyExistsException;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ResourceTypeMismatchException;
+import com.example.demo.model.Bebida;
 import com.example.demo.model.Categoria;
+import com.example.demo.model.Comida;
 import com.example.demo.model.ItemMenu;
 import com.example.demo.repositorio.CategoriaRepository;
 import com.example.demo.repositorio.ItemMenuRepository;
@@ -15,6 +20,7 @@ public class ItemMenuService implements IitemMenuService {
 
     private final ItemMenuRepository itemMenuRepository;
     private final CategoriaRepository categoriaRepository;
+
     @Autowired
     public ItemMenuService(ItemMenuRepository itemMenuRepository, CategoriaRepository categoriaRepository) {
         this.itemMenuRepository = itemMenuRepository;
@@ -26,36 +32,55 @@ public class ItemMenuService implements IitemMenuService {
     }
 
     public ItemMenu crearItemMenu(ItemMenu itemMenu) {
+        if (itemMenuRepository.existsById(itemMenu.getId())) {
+            throw new ResourceAlreadyExistsException("No se puede crear. El ítem con ID " + itemMenu.getId() + " ya existe.");
+        }
         return itemMenuRepository.save(itemMenu);
     }
 
     public boolean existeItemMenu(int id) {
         return itemMenuRepository.existsById(id);
     }
+    private void verificarTipoItem(ItemMenu itemMenuExistente, ItemMenu itemMenu) {
+        if (itemMenuExistente.getClass() != itemMenu.getClass()) {
+            throw new ResourceTypeMismatchException(
+                    "El ítem con ID " + itemMenu.getId() + " no es del mismo tipo que el ítem a modificar."
+            );
+        }
+    }
+    private String getTipoItemFromItemMenu(ItemMenu itemMenu) {
+        if (itemMenu instanceof Bebida) {
+            return "Bebida";
+        } else if (itemMenu instanceof Comida) {
+            return "Comida";
+        }
+        throw new IllegalArgumentException("Tipo de ItemMenu no soportado.");
+    }
 
     @Transactional
     public ItemMenu modificarItemMenu(ItemMenu itemMenu) {
-        // Verificar si el ItemMenu existe en la base de datos
         ItemMenu itemMenuExistente = itemMenuRepository.findById(itemMenu.getId())
-                .orElseThrow(() -> new IllegalArgumentException("El ítem con ID " + itemMenu.getId() + " no existe."));
+                .orElseThrow(() -> new ResourceNotFoundException("El ítem con ID " + itemMenu.getId() + " no existe."));
 
-        // Actualizar los campos del ItemMenu existente
-        itemMenuExistente.setNombre(itemMenu.getNombre());
-        itemMenuExistente.setDescripcion(itemMenu.getDescripcion());
-        itemMenuExistente.setPrecio(itemMenu.getPrecio());
-        itemMenuExistente.setPeso(itemMenu.getPeso());
+        verificarTipoItem(itemMenuExistente, itemMenu);
 
-        // Verificar si la categoría asociada es válida
         Categoria categoria = itemMenu.getCategoria();
         if (categoria == null || categoria.getId() == 0) {
             throw new IllegalArgumentException("El ItemMenu debe tener una categoría con un ID válido.");
         }
 
-        // Actualizar la categoría existente o crear una nueva si no existe
         Categoria categoriaExistente = categoriaRepository.findById(categoria.getId())
                 .orElseGet(() -> {
                     if (categoria.getDescripcion() == null || categoria.getTipoItem() == null) {
-                        throw new IllegalArgumentException("Para crear una nueva categoría, se requieren 'descripcion' y 'tipoItem'");
+                        throw new IllegalArgumentException("Para crear una nueva categoría, se requieren 'descripcion' y 'tipoItem'.");
+                    }
+                    // Asegurar que el tipoItem de la nueva categoría coincide con el tipoItem del ItemMenu
+                    String tipoItemEsperado = getTipoItemFromItemMenu(itemMenuExistente);
+                    if (!categoria.getTipoItem().equalsIgnoreCase(tipoItemEsperado)) {
+                        throw new IllegalArgumentException(
+                                "El tipoItem de la nueva categoría no coincide con el tipoItem del ItemMenu. " +
+                                        "Esperado: " + tipoItemEsperado + ", Proporcionado: " + categoria.getTipoItem()
+                        );
                     }
                     Categoria nuevaCategoria = new Categoria();
                     nuevaCategoria.setDescripcion(categoria.getDescripcion());
@@ -63,29 +88,32 @@ public class ItemMenuService implements IitemMenuService {
                     return categoriaRepository.save(nuevaCategoria);
                 });
 
+
+        if (!categoriaExistente.getTipoItem().equalsIgnoreCase(getTipoItemFromItemMenu(itemMenuExistente))) {
+            throw new IllegalArgumentException(
+                    "El tipoItem de la categoría existente no coincide con el tipoItem del ItemMenu. " +
+                            "Esperado: " + getTipoItemFromItemMenu(itemMenuExistente) + ", Actual: " + categoriaExistente.getTipoItem()
+            );
+        }
+
+        itemMenuExistente.setNombre(itemMenu.getNombre());
+        itemMenuExistente.setDescripcion(itemMenu.getDescripcion());
+        itemMenuExistente.setPrecio(itemMenu.getPrecio());
+        itemMenuExistente.setPeso(itemMenu.getPeso());
         itemMenuExistente.setCategoria(categoriaExistente);
 
-        // Guardar y retornar el ItemMenu modificado
         return itemMenuRepository.save(itemMenuExistente);
     }
-
-
-
-
-
-
-
-
-
+    @Transactional
     public void eliminarItemMenu(int id) {
-        if (!itemMenuRepository.existsById(id)) {
-            throw new IllegalArgumentException("El ítem con ID " + id + " no existe.");
-        }
-        itemMenuRepository.deleteById(id);
+        //verificar si el item existe usando obtenerItemMenu
+        ItemMenu itemMenu = obtenerItemMenu(id);
+        itemMenuRepository.delete(itemMenu);
+
     }
 
     public ItemMenu obtenerItemMenu(int id) {
-        return itemMenuRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("El ítem con ID " + id + " no existe."));
+        return itemMenuRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("El ítem con ID " + id + " no existe."));
     }
-
 }
