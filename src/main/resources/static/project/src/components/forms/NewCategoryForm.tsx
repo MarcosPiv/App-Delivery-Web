@@ -7,7 +7,7 @@ interface NewCategoryFormProps {
 const NewCategoryForm = ({ onCategoryCreate }: NewCategoryFormProps) => {
     const [categoryData, setCategoryData] = useState({
         descripcion: '',
-        tipo: 'Comida'
+        tipoItem: 'Comida'
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -39,7 +39,7 @@ const NewCategoryForm = ({ onCategoryCreate }: NewCategoryFormProps) => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Item</label>
                 <select
                     name="tipo"
-                    value={categoryData.tipo}
+                    value={categoryData.tipoItem}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
                     required

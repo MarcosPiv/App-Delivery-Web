@@ -11,9 +11,10 @@ import ClientForm from './components/forms/ClientForm';
 import MenuItemForm from './components/forms/MenuItemForm';
 import OrderForm from './components/forms/OrderForm';
 import CategoryForm from './components/forms/CategoryForm';
-import {  sampleMenuItems, sampleOrders, sampleCategories } from './data/sampleData';
+import {  sampleMenuItems, sampleOrders } from './data/sampleData';
 import { getVendedores , deleteVendedor} from './services/vendedorService';
 import { getClient, deleteClient } from './services/clienteService';
+import { getCategories, deleteCategory } from './services/categoriaService';
 
 function App() {
   const [clients, setClients] = useState<any[]>([]);
@@ -70,8 +71,12 @@ function App() {
   const categoriesColumns = [
     { key: 'id', header: 'ID' },
     { key: 'descripcion', header: 'Descripción' },
-    { key: 'tipo', header: 'Tipo Item' }
+    { key: 'tipoItem', header: 'Tipo Item' }
   ];
+
+  const filteredCategories = categories.filter((category) =>
+      category.id.toString().includes(searchQuery) // Búsqueda por ID
+  );
 
   const filteredClients = clients.filter((client) =>
       client.nombre.toLowerCase().includes(searchQuery.toLowerCase())
@@ -92,7 +97,7 @@ function App() {
       case 'orders':
         return sampleOrders;
       case 'categories':
-        return sampleCategories;
+        return filteredCategories;
       default:
         return [];
     }
@@ -123,6 +128,9 @@ function App() {
     if (activeTab === 'clients') {
       fetchClients();
     }
+    if (activeTab === 'categories') {
+      fetchCategories();
+    }
   }, [activeTab]);
 
   const fetchClients = async () => {
@@ -140,6 +148,19 @@ function App() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories(); // Llama a la API para obtener las categorías
+      const formattedData = data.map((category) => ({
+        id: category.id,
+        descripcion: category.descripcion || 'Sin descripción', // Valor predeterminado si falta
+        tipoItem: category.tipoItem || 'N/A', // Valor predeterminado si falta
+      }));
+      setCategories(formattedData); // Actualiza el estado de categorías
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchVendors = async () => {
     try {
@@ -154,8 +175,6 @@ function App() {
       console.error('Error fetching vendors:', error);
     }
   };
-
-
 
   const handleDelete = async (item: { id: number }) => {
     if (window.confirm('¿Está seguro que desea eliminar este registro?')) {
@@ -172,6 +191,12 @@ function App() {
           setClients((prevClients) =>
               prevClients.filter((client) => client.id !== item.id)
           );
+        } else if (activeTab === 'categories') {
+          // Eliminar una categoría
+          await deleteCategory(item.id);
+          setCategories((prevCategories) =>
+              prevCategories.filter((category) => category.id !== item.id)
+          );
         } else {
           console.error('Tipo desconocido para eliminar:', activeTab);
         }
@@ -180,7 +205,6 @@ function App() {
       }
     }
   };
-
 
 
   const handleAdd = () => {
@@ -200,6 +224,7 @@ function App() {
     setShowModal(false);
     fetchVendors(); // Fetch updated data
     fetchClients();
+    fetchCategories();
   };
 
   const renderForm = () => {
