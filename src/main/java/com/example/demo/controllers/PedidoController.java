@@ -42,10 +42,10 @@ public class PedidoController {
 
     @PostMapping
     public ResponseEntity<PedidoDTO> crearNuevoPedido(@Valid @RequestBody PedidoDTO pedidoDTO) {
-        var pedido = pedidoMapper.convertirAEntidad(pedidoDTO);
-        var pedidoGuardado = pedidoService.crearPedido(pedido);
-        var pedidoDTORetorno = pedidoMapper.convertirADTO(pedidoGuardado);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoDTORetorno);
+            var pedido = pedidoMapper.convertirAEntidad(pedidoDTO);
+            var pedidoGuardado = pedidoService.crearPedido(pedido);
+            var pedidoDTORetorno = pedidoMapper.convertirADTO(pedidoGuardado);
+            return ResponseEntity.status(HttpStatus.CREATED).body(pedidoDTORetorno);
     }
 
     @GetMapping("/{id}")
