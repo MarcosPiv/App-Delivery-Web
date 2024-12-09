@@ -38,7 +38,7 @@ const NewCategoryForm = ({ onCategoryCreate }: NewCategoryFormProps) => {
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Item</label>
                 <select
-                    name="tipo"
+                    name="tipoItem"
                     value={categoryData.tipoItem}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"

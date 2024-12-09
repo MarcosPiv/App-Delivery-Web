@@ -76,6 +76,11 @@ function App() {
     { key: 'tipoItem', header: 'Tipo Item' }
   ];
 
+  const filteredItemsMenu = itemMenu.filter((item) =>
+        item.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.id.toString().includes(searchQuery)
+    );
+
   const filteredCategories = categories.filter((category) =>
       category.id.toString().includes(searchQuery) // Búsqueda por ID
   );
@@ -95,7 +100,7 @@ function App() {
       case 'clients':
         return filteredClients;
       case 'menu':
-        return itemMenu;
+        return filteredItemsMenu;
       case 'orders':
         return sampleOrders;
       case 'categories':

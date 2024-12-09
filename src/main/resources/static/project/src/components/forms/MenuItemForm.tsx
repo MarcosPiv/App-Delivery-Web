@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useCategories } from '../../hooks/useCategories';
 import CategorySelector from './CategorySelector';
 import NewCategoryForm from './NewCategoryForm';
 import { createItemMenu, updateItemMenu } from '../../services/itemsMenuService.ts'
+import { createCategory, getCategories } from '../../services/categoriaService';
 
 interface MenuItemFormProps {
     onSubmit: (data: any) => void;
@@ -13,13 +13,50 @@ interface MenuItemFormProps {
 const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) => {
     const [useExistingCategory, setUseExistingCategory] = useState(true);
     const [newCategory, setNewCategory] = useState<any>(null);
-    const { categories } = useCategories();
+    // @ts-ignore
+    const [isLoading, setIsLoading] = useState(false);
+    const [categories, setCategories] = useState([]);
 
+    // Obtener categorías al cargar el formulario
+    React.useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await getCategories();
+                // @ts-ignore
+                setCategories(data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    // Manejar el envío del formulario
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const data = Object.fromEntries(formData.entries());
 
+        let categoria;
+        if (!useExistingCategory) {
+            // Crear una nueva categoría
+            setIsLoading(true);
+            try {
+                categoria = await createCategory(newCategory);
+                alert('Categoría creada exitosamente.');
+            } catch (error) {
+                console.error('Error creando la categoría:', error);
+                alert('Hubo un error al crear la categoría.');
+                setIsLoading(false);
+                return;
+            }
+            setIsLoading(false);
+        } else {
+            // Usar una categoría existente
+            categoria = { id: parseInt(data.categoriaId as string, 10) };
+        }
+
+        // Datos del ItemMenu
         const menuItemData = {
             tipoItem: data.tipoItem,
             nombre: data.nombre,
@@ -30,20 +67,18 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
             tamanio: parseFloat(data.tamanio as string),
             aptoVegano: data.aptoVegano === 'on',
             aptoCeliaco: data.aptoCeliaco === 'on',
-            categoria: useExistingCategory
-                ? { id: parseInt(data.categoriaId as string, 10) }
-                : newCategory,
+            categoria, // Categoría creada o existente
             calorias: parseFloat(data.calorias as string),
-            pesoSinEnvase: parseFloat(data.pesoSinEnvase as string)
+            pesoSinEnvase: parseFloat(data.pesoSinEnvase as string),
         };
 
         try {
             if (initialData) {
-                // Llamada al servicio para actualizar un ItemMenu
+                // Actualizar ItemMenu existente
                 await updateItemMenu(initialData.id, menuItemData);
                 alert('Item actualizado exitosamente.');
             } else {
-                // Llamada al servicio para crear un nuevo ItemMenu
+                // Crear nuevo ItemMenu
                 await createItemMenu(menuItemData);
                 alert('Item creado exitosamente.');
             }
@@ -56,7 +91,6 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
             alert('Hubo un error al guardar el item. Por favor, intenta nuevamente.');
         }
     };
-
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto px-4">
