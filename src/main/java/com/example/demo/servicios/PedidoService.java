@@ -9,6 +9,7 @@ import com.example.demo.repositorio.DetallePedidoRepository;
 import com.example.demo.repositorio.PedidoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.beans.Transient;
@@ -40,18 +41,21 @@ public class PedidoService implements IPedidoService {
         return pedidoRepository.findAll();
     }
 
+
     @Override
     @Transactional
     public Pedido crearPedido(Pedido pedido) {
         if (pedidoRepository.existsById(pedido.getId())) {
             throw new ResourceAlreadyExistsException("No se puede crear. El pedido con ID " + pedido.getId() + " ya existe.");
+        }else {
+            for (DetallePedido detalle : pedido.getDetallesPedido()) {
+                if (!detallePedidoService.existeDetallePedido(detalle.getId())) {
+                    detallePedidoService.crearDetallePedido(detalle);
+                }
+            }
+            
+            return pedidoRepository.save(pedido);
         }
-        //eliminar los id de detalles de pedido
-        for (DetallePedido detalle : pedido.getDetallesPedido()) {
-            detalle.setId(0);
-        }
-        return pedidoRepository.save(pedido);
-
     }
 
     @Override

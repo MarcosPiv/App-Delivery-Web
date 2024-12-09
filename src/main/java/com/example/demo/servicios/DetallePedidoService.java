@@ -8,6 +8,8 @@ import com.example.demo.repositorio.ItemMenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class DetallePedidoService implements IDetallePedidoService {
 
@@ -46,5 +48,13 @@ public class DetallePedidoService implements IDetallePedidoService {
         }
 
         return detallePedidoRepository.save(detallePedido);
+    }
+
+    public Optional<DetallePedido> buscarPorCampos(int itemId, int cantidad, double precio) {
+        return detallePedidoRepository.findByItemIdAndCantidadAndPrecio(itemId, cantidad, precio);
+    }
+
+    public boolean existeDetallePedido(int id) {
+        return detallePedidoRepository.existsById(id);
     }
 }

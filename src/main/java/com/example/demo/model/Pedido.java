@@ -19,10 +19,9 @@ import org.hibernate.annotations.Cascade;
 @Entity
 public class Pedido extends Observable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pedido_seq")
-    @SequenceGenerator(name = "pedido_seq", sequenceName = "pedido_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
     @ManyToOne
@@ -30,7 +29,10 @@ public class Pedido extends Observable {
     private Vendedor restaurante;
     private double precioTotal;
     @Getter
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinTable(name = "pedido_detalle",
+            joinColumns = @JoinColumn(name = "pedido_id"),
+            inverseJoinColumns = @JoinColumn(name = "detalle_id"))
     private List<DetallePedido> detallesPedido;
     private Estado estado;
     @Transient // indica que no se persiste en la base de datos

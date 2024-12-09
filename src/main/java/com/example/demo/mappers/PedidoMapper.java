@@ -120,7 +120,7 @@ public class PedidoMapper {
             // Obtener ItemMenu gestionado a través del servicio
             ItemMenu itemMenu = itemMenuService.obtenerItemMenu(dto.getItemMenuId());
             detalle.setItem(itemMenu);
-            detalle.setPedido(pedido); // Establecer el pedido padre conocido
+            detalle.addPedido(pedido);
             lista.add(detalle);
         }
 

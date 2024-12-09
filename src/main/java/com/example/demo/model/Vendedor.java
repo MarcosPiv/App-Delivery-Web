@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
@@ -150,7 +151,7 @@ public class Vendedor {
                     if (nuevoItemMenu == null) {
                         throw new IllegalArgumentException("ItemMenu not found for id: " + itemsYcant[0]);
                     }
-                    DetallePedido nuevoDetalle = new DetallePedido(nuevoItemMenu.getId(), nuevoItemMenu, itemsYcant[1], nuevoItemMenu.getPrecio(), nuevoPedido);
+                    DetallePedido nuevoDetalle = new DetallePedido(nuevoItemMenu.getId(), nuevoItemMenu, itemsYcant[1], nuevoItemMenu.getPrecio(), List.of(nuevoPedido));
                     nuevoPedido.agregarDetalle(nuevoDetalle);
                     nuevoPedido.setEstado(Estado.RECIBIDO);
                     nuevoPedido.setCliente(unCliente);

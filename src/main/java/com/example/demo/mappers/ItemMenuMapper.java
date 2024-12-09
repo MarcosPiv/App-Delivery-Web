@@ -107,8 +107,8 @@ public class ItemMenuMapper {
     }
 
     private Categoria buscarOCrearCategoria(CategoriaDTO categoriaDTO, String tipoItemItemMenu) {
-        if (categoriaDTO == null || categoriaDTO.getId() == 0) {
-            throw new IllegalArgumentException("El DTO de categoría no puede ser nulo y debe tener un ID válido");
+        if (categoriaDTO == null ) {
+            throw new IllegalArgumentException("El DTO de categoría no puede ser nulo.");
         }
 
         try {
@@ -140,6 +140,7 @@ public class ItemMenuMapper {
             nuevaCategoria.setId(categoriaDTO.getId());
             nuevaCategoria.setDescripcion(categoriaDTO.getDescripcion());
             nuevaCategoria.setTipoItem(categoriaDTO.getTipoItem());
+            categoriaService.crearCategoria(nuevaCategoria);
             return nuevaCategoria;
         }
     }

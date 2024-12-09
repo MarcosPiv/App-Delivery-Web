@@ -7,6 +7,8 @@ import com.example.demo.repositorio.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CategoriaService implements ICategoriaService {
     private final CategoriaRepository categoriaRepository;
@@ -54,5 +56,9 @@ public class CategoriaService implements ICategoriaService {
 
     public boolean existeCategoria(int id) {
         return categoriaRepository.existsById(id);
+    }
+
+    public List<Categoria> listarCategorias() {
+        return categoriaRepository.findAll();
     }
 }
