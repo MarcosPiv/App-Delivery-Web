@@ -11,15 +11,17 @@ import ClientForm from './components/forms/ClientForm';
 import MenuItemForm from './components/forms/MenuItemForm';
 import OrderForm from './components/forms/OrderForm';
 import CategoryForm from './components/forms/CategoryForm';
-import {  sampleMenuItems, sampleOrders } from './data/sampleData';
+import { sampleOrders } from './data/sampleData';
 import { getVendedores , deleteVendedor} from './services/vendedorService';
 import { getClient, deleteClient } from './services/clienteService';
 import { getCategories, deleteCategory } from './services/categoriaService';
+import { getAllItemsMenu, deleteItemMenu } from './services/itemsMenuService';
 
 function App() {
   const [clients, setClients] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [itemMenu, setItemsMenu] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('vendors');
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -53,7 +55,7 @@ function App() {
     { key: 'peso', header: 'Peso' },
     { key: 'tipo', header: 'Tipo' },
     { key: 'graduacion', header: 'Graduación' },
-    { key: 'tamaño', header: 'Tamaño' },
+    { key: 'tamanio', header: 'Tamaño' },
     { key: 'calorias', header: 'Calorías' },
     { key: 'aptoVegano', header: 'Apto Vegano' },
     { key: 'aptoCeliaco', header: 'Apto Celíaco' },
@@ -93,7 +95,7 @@ function App() {
       case 'clients':
         return filteredClients;
       case 'menu':
-        return sampleMenuItems;
+        return itemMenu;
       case 'orders':
         return sampleOrders;
       case 'categories':
@@ -131,7 +133,36 @@ function App() {
     if (activeTab === 'categories') {
       fetchCategories();
     }
+    if(activeTab === 'menu'){
+      fetchMenuItems();
+    }
   }, [activeTab]);
+
+  const fetchMenuItems = async () => {
+    try {
+      const data = await getAllItemsMenu();
+      // @ts-ignore
+      const formattedData = data.map((item: any) => ({
+        id: item.id,
+        nombre: item.nombre || 'N/A',
+        descripcion: item.descripcion || 'Sin descripción',
+        precio: item.precio !== null && item.precio !== undefined ? item.precio : 'N/A',
+        categoria: item.categoria?.descripcion || 'Sin categoría',
+        peso: item.peso !== null && item.peso !== undefined ? item.peso : '-',
+        tipo: item.tipoItem || 'N/A',
+        graduacion: item.graduacionAlcoholica !== null && item.graduacionAlcoholica !== undefined ? item.graduacionAlcoholica : '-',
+        tamanio: item.tamanio !== null && item.tamanio !== undefined ? item.tamanio : 'N/A',
+        calorias: item.calorias !== null && item.calorias !== undefined ? item.calorias : '-',
+        aptoVegano: item.aptoVegano !== null ? (item.aptoVegano ? 'Sí' : 'No') : 'N/A',
+        aptoCeliaco: item.aptoCeliaco !== null ? (item.aptoCeliaco ? 'Sí' : 'No') : 'N/A',
+        pesoSinEnvase: item.pesoSinEnvase !== null && item.pesoSinEnvase !== undefined ? item.pesoSinEnvase : 'N/A',
+      }));
+      setItemsMenu(formattedData);
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+    }
+  };
+
 
   const fetchClients = async () => {
     try {
@@ -197,6 +228,12 @@ function App() {
           setCategories((prevCategories) =>
               prevCategories.filter((category) => category.id !== item.id)
           );
+        } else if (activeTab === 'menu') {
+          // Eliminar un ítem del menú
+          await deleteItemMenu(item.id); // Llama a la función del servicio
+          setItemsMenu((prevItems) =>
+              prevItems.filter((menuItem) => menuItem.id !== item.id)
+          );
         } else {
           console.error('Tipo desconocido para eliminar:', activeTab);
         }
@@ -205,6 +242,7 @@ function App() {
       }
     }
   };
+
 
 
   const handleAdd = () => {
@@ -225,6 +263,7 @@ function App() {
     fetchVendors(); // Fetch updated data
     fetchClients();
     fetchCategories();
+    fetchMenuItems();
   };
 
   const renderForm = () => {

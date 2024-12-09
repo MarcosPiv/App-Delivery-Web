@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCategories } from '../../hooks/useCategories';
 import CategorySelector from './CategorySelector';
 import NewCategoryForm from './NewCategoryForm';
+import { createItemMenu, updateItemMenu } from '../../services/itemsMenuService.ts'
 
 interface MenuItemFormProps {
     onSubmit: (data: any) => void;
@@ -14,28 +15,48 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
     const [newCategory, setNewCategory] = useState<any>(null);
     const { categories } = useCategories();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const data = Object.fromEntries(formData.entries());
 
         const menuItemData = {
-            ...data,
-            precio: Number(data.precio),
-            peso: Number(data.peso),
-            graduacionAlcoholica: Number(data.graduacionAlcoholica),
-            tamanio: Number(data.tamanio),
-            calorias: Number(data.calorias),
-            pesoSinEnvase: Number(data.pesoSinEnvase),
+            tipoItem: data.tipoItem,
+            nombre: data.nombre,
+            descripcion: data.descripcion,
+            precio: parseFloat(data.precio as string),
+            peso: parseFloat(data.peso as string),
+            graduacionAlcoholica: parseFloat(data.graduacionAlcoholica as string),
+            tamanio: parseFloat(data.tamanio as string),
             aptoVegano: data.aptoVegano === 'on',
             aptoCeliaco: data.aptoCeliaco === 'on',
             categoria: useExistingCategory
-                ? { id: Number(data.categoriaId) }
-                : newCategory
+                ? { id: parseInt(data.categoriaId as string, 10) }
+                : newCategory,
+            calorias: parseFloat(data.calorias as string),
+            pesoSinEnvase: parseFloat(data.pesoSinEnvase as string)
         };
 
-        onSubmit(menuItemData);
+        try {
+            if (initialData) {
+                // Llamada al servicio para actualizar un ItemMenu
+                await updateItemMenu(initialData.id, menuItemData);
+                alert('Item actualizado exitosamente.');
+            } else {
+                // Llamada al servicio para crear un nuevo ItemMenu
+                await createItemMenu(menuItemData);
+                alert('Item creado exitosamente.');
+            }
+
+            if (onSubmit) {
+                onSubmit(menuItemData);
+            }
+        } catch (error) {
+            console.error('Error al guardar el item:', error);
+            alert('Hubo un error al guardar el item. Por favor, intenta nuevamente.');
+        }
     };
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto px-4">
@@ -61,7 +82,6 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
                     />
                 </div>
             </div>
-
             <div className="space-y-4">
                 <div className="flex items-center space-x-4">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Categoría:</label>
@@ -89,6 +109,7 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
 
                 {useExistingCategory ? (
                     <CategorySelector
+                        // @ts-ignore
                         categories={categories}
                         defaultValue={initialData?.categoria?.id}
                     />

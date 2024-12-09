@@ -48,8 +48,9 @@ public class ItemMenuController {
         return ResponseEntity.status(HttpStatus.CREATED).body(itemMenuDTOGuardado);
     }
 
-    @PutMapping("/modificarItem")
-    public ResponseEntity<ItemMenuDTO> modificarItemMenu(@Valid @RequestBody ItemMenuDTO itemMenuDTO) {
+    @PutMapping("/modificarItem/{id}")
+    public ResponseEntity<ItemMenuDTO> modificarItemMenu(@PathVariable int id, @Valid @RequestBody ItemMenuDTO itemMenuDTO) {
+        itemMenuDTO.setId(id);
         ItemMenu itemMenu = itemMenuMapper.convertirAEntidad(itemMenuDTO);
         ItemMenu itemMenuModificado = itemMenuService.modificarItemMenu(itemMenu);
         ItemMenuDTO itemMenuDTOModificado = itemMenuMapper.convertirADTO(itemMenuModificado);
