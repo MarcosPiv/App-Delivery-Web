@@ -117,7 +117,6 @@ public class PedidoMapper {
             detalle.setCantidad(dto.getCantidad());
             detalle.setPrecio(dto.getPrecio());
             detalle.setId(dto.getId());
-            // Obtener ItemMenu gestionado a través del servicio
             ItemMenu itemMenu = itemMenuService.obtenerItemMenu(dto.getItemMenuId());
             detalle.setItem(itemMenu);
             detalle.addPedido(pedido);

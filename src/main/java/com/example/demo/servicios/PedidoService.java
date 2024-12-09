@@ -45,18 +45,29 @@ public class PedidoService implements IPedidoService {
     @Override
     @Transactional
     public Pedido crearPedido(Pedido pedido) {
-        if (pedidoRepository.existsById(pedido.getId())) {
-            throw new ResourceAlreadyExistsException("No se puede crear. El pedido con ID " + pedido.getId() + " ya existe.");
-        }else {
-            for (DetallePedido detalle : pedido.getDetallesPedido()) {
-                if (!detallePedidoService.existeDetallePedido(detalle.getId())) {
-                    detallePedidoService.crearDetallePedido(detalle);
-                }
+        ArrayList<DetallePedido> detallesProcesados = new ArrayList<>();
+
+        for (DetallePedido detalle : pedido.getDetallesPedido()) {
+            Optional<DetallePedido> detalleExistente = detallePedidoService.buscarPorCampos(
+                    detalle.getItem().getId(),
+                    detalle.getCantidad(),
+                    detalle.getPrecio()
+            );
+
+            if (detalleExistente.isPresent()) {
+                detallesProcesados.add(detalleExistente.get());
+            } else {
+                DetallePedido nuevoDetalle = detallePedidoService.crearDetallePedido(detalle);
+                detallesProcesados.add(nuevoDetalle);
             }
-            
-            return pedidoRepository.save(pedido);
         }
+
+        pedido.setDetallesPedido(detallesProcesados);
+
+        return pedidoRepository.save(pedido);
     }
+
+
 
     @Override
     public Pedido buscarPedidoPorId(int id) {

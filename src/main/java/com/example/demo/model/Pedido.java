@@ -30,9 +30,12 @@ public class Pedido extends Observable {
     private double precioTotal;
     @Getter
     @ManyToMany
-    @JoinTable(name = "pedido_detalle",
+    @JoinTable(
+            name = "pedido_detalle",
             joinColumns = @JoinColumn(name = "pedido_id"),
-            inverseJoinColumns = @JoinColumn(name = "detalle_id"))
+            inverseJoinColumns = @JoinColumn(name = "detalle_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"pedido_id", "detalle_id"}) // Garantiza unicidad
+    )
     private List<DetallePedido> detallesPedido;
     private Estado estado;
     @Transient // indica que no se persiste en la base de datos
