@@ -4,6 +4,7 @@ import com.example.demo.dto.VendedorDTO;
 import com.example.demo.mappers.VendedorMapper;
 import com.example.demo.model.Vendedor;
 import com.example.demo.servicios.IVendedorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,7 @@ public class VendedorController {
     }
 
     @GetMapping("/buscarPorNombre")
-    public ResponseEntity<List<VendedorDTO>> buscarVendedorPorNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<VendedorDTO>> buscarVendedorPorNombre(@Valid @RequestParam String nombre) {
         List<Vendedor> vendedores = vendedorService.obtenerVendedoresPorNombre(nombre);
 
         if (vendedores.isEmpty()) {
@@ -56,7 +57,7 @@ public class VendedorController {
 
 
     @PostMapping("/crearVendedor")
-    public ResponseEntity<VendedorDTO> crearNuevoVendedor(@RequestBody VendedorDTO vendedorDTO) {
+    public ResponseEntity<VendedorDTO> crearNuevoVendedor(@Valid @RequestBody VendedorDTO vendedorDTO) {
         try {
             Vendedor vendedor = vendedorMapper.convertirAEntidad(vendedorDTO);
             Vendedor vendedorGuardado = vendedorService.crearVendedor(vendedor);
@@ -70,7 +71,7 @@ public class VendedorController {
     }
 
     @PutMapping("/modificarVendedor/{id}")
-    public ResponseEntity<VendedorDTO> modificarVendedor(@PathVariable int id, @RequestBody VendedorDTO vendedorDTO) {
+    public ResponseEntity<VendedorDTO> modificarVendedor(@PathVariable int id,@Valid @RequestBody VendedorDTO vendedorDTO) {
         try {
             if (!vendedorService.existeVendedor(id)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
