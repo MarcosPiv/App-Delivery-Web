@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/categoria")
 public class CategoriaController {
@@ -73,5 +75,23 @@ public class CategoriaController {
     public ResponseEntity<Void> eliminarCategoria(@PathVariable int id) {
         categoriaService.eliminarCategoria(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/listar")
+    public ResponseEntity<List<CategoriaDTO>> listarCategorias() {
+        List<Categoria> categorias = categoriaService.listarCategorias();
+        List<CategoriaDTO> categoriasDTO = categorias.stream()
+                .map(categoria -> new CategoriaDTO(
+                        categoria.getId(),
+                        categoria.getDescripcion(),
+                        categoria.getTipoItem()
+                ))
+                .toList();
+
+        if (categoriasDTO.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(categoriasDTO);
     }
 }

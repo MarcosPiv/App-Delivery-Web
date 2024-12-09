@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 @Setter
 @Getter
 
@@ -17,17 +20,24 @@ public class DetallePedido {
     @OneToOne
     @JoinColumn(name = "item_id")
     private ItemMenu item;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pedido_id", nullable = false)
-    private Pedido pedido;
+    @ManyToMany(mappedBy = "detallesPedido")
+    private List<Pedido> pedido;
     private int cantidad;
     private double precio;
 
-    public DetallePedido(int id, ItemMenu item, int cantidad, double precio, Pedido pedido) {
+    public DetallePedido() {
+    pedido = new ArrayList<>();
+    }
+
+    public DetallePedido(int id, ItemMenu item, int cantidad, double precio, List<Pedido> pedido) {
         this.id = id;
         this.item = item;
         this.pedido = pedido;
         this.cantidad = cantidad;
         this.precio = precio;
+    }
+    public void addPedido(Pedido pedido){
+        //agregar pedido a la lista de pedidos
+        this.pedido.add(pedido);
     }
 }

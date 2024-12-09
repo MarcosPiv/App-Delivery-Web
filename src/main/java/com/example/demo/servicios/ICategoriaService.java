@@ -2,6 +2,7 @@ package com.example.demo.servicios;
 
 import com.example.demo.model.Categoria;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ICategoriaService {
@@ -10,4 +11,5 @@ public interface ICategoriaService {
     Categoria modificarCategoria(Categoria categoriaExistente);
     void eliminarCategoria(int id);
     boolean existeCategoria(int id);
+    List<Categoria> listarCategorias();
 }
