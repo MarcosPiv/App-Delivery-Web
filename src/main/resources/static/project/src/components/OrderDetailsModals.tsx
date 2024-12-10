@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 
-interface OrderDetail {
+export interface OrderDetail {
     id: number;
     cantidad: number;
     precio: number;
@@ -13,7 +13,7 @@ interface OrderDetailsModalProps {
     orderDetails: OrderDetail[];
 }
 
-const OrderDetailsModal = ({ isOpen, onClose, orderDetails }: OrderDetailsModalProps) => {
+export const OrderDetailsModal = ({ isOpen, onClose, orderDetails }: OrderDetailsModalProps) => {
     if (!isOpen) return null;
 
     const calculateTotal = () => {

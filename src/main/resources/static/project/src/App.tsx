@@ -15,7 +15,8 @@ import { getVendedores, deleteVendedor } from './services/vendedorService';
 import { getClient, deleteClient } from './services/clienteService';
 import { getCategories, deleteCategory } from './services/categoriaService';
 import { getAllItemsMenu, deleteItemMenu } from './services/itemsMenuService';
-import { getPedidos, deletePedido } from './services/pedidoService';
+import { getPedidos, deletePedido, getDetallesPedido } from './services/pedidoService';
+import { OrderDetail, OrderDetailsModal } from './components/OrderDetailsModals';
 
 function App() {
   const [clients, setClients] = useState<any[]>([]);
@@ -28,7 +29,18 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
+  const [isOrderDetailsModalOpen, setIsOrderDetailsModalOpen] = useState(false);
 
+  const handleShowOrderDetails = async (orderId: number) => {
+    try {
+      const detalles = await getDetallesPedido(orderId); // Llama al servicio para obtener detalles
+      setOrderDetails(detalles); // Actualiza el estado con los detalles obtenidos
+      setIsOrderDetailsModalOpen(true); // Abre el modal
+    } catch (error) {
+      console.error('Error al obtener detalles del pedido:', error);
+    }
+  };
   const vendorsColumns = [
     { key: 'id', header: 'ID' },
     { key: 'nombre', header: 'Nombre' },
@@ -321,6 +333,7 @@ function App() {
     }
   };
 
+
   return (
       <ThemeProvider>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
@@ -357,6 +370,13 @@ function App() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   showOrderDetails={activeTab === 'orders'}
+                  // @ts-ignore
+                  onShowOrderDetails={handleShowOrderDetails}
+              />
+              <OrderDetailsModal
+                  isOpen={isOrderDetailsModalOpen}
+                  onClose={() => setIsOrderDetailsModalOpen(false)}
+                  orderDetails={orderDetails}
               />
             </div>
           </main>

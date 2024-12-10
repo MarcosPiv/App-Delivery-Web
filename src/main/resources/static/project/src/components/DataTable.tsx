@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Edit2, Trash2, List } from 'lucide-react';
 import OrderDetailsModal from './OrderDetailsModals';
+import { getDetallesPedido } from '../services/pedidoService';
 
 interface Column {
   key: string;
@@ -57,18 +58,23 @@ const DataTable = ({ columns, data, onEdit, onDelete, showOrderDetails = false }
                   ))}
                   {(onEdit || onDelete || showOrderDetails) && (
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {showOrderDetails && (
-                            <button
-                                onClick={() => {
-                                  setSelectedOrder(item);
-                                  setShowDetailsModal(true);
-                                }}
-                                className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
-                            >
-                              <List className="h-4 w-4 inline-block mr-1" />
-                              Detalles
-                            </button>
-                        )}
+                          {showOrderDetails && (
+                              <button
+                                  onClick={async () => {
+                                      try {
+                                          const detalles = await getDetallesPedido(item.id); // Llama al servicio
+                                          setSelectedOrder({ ...item, detalles }); // Actualiza el estado con los detalles
+                                          setShowDetailsModal(true); // Abre el modal
+                                      } catch (error) {
+                                          console.error('Error al obtener los detalles del pedido:', error);
+                                      }
+                                  }}
+                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                              >
+                                  <List className="h-4 w-4 inline-block mr-1" />
+                                  Detalles
+                              </button>
+                          )}
                         {onEdit && (
                             <button
                                 onClick={() => onEdit(item)}

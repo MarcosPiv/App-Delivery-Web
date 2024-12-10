@@ -69,7 +69,9 @@ export const cambiarEstadoPedido = async (id: number, nuevoEstado: string): Prom
 // Obtiene los detalles de un pedido por ID
 export const getDetallesPedido = async (id: number): Promise<any[]> => {
     try {
+        console.log(`Fetching detalles de pedido para ID: ${id}`); // Debug
         const response = await axios.get<any[]>(`${BASE_URL}/${id}/detalles`);
+        console.log('Detalles recibidos del backend:', response.data); // Debug
         return response.data;
     } catch (error) {
         console.error('Error fetching order details:', error);

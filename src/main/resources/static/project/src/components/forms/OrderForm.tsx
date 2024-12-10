@@ -27,12 +27,18 @@ const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const mainData = Object.fromEntries(formData.entries());
+        const detallesSinId = orderDetails.map(({ cantidad, precio, itemMenuId }) => ({
+            cantidad,
+            precio,
+            itemMenuId,
+        }));
+
         const completeData = {
             clienteId: Number(mainData.clienteId),
             vendedorId: Number(mainData.vendedorId),
             estado: mainData.estado,
             precioTotal: calculateTotal(),
-            detallesPedido: orderDetails,
+            detallesPedido: detallesSinId,
         };
 
         try {
@@ -50,6 +56,7 @@ const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
             alert('Hubo un error al guardar el pedido. Por favor, intenta nuevamente.');
         }
     };
+
 
     const handleAddDetail = () => {
         if (newDetail.cantidad && newDetail.precio && newDetail.itemMenuId) {

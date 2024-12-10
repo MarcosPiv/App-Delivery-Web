@@ -86,6 +86,7 @@ public class PedidoMapper {
             DetallePedidoDTO dto = new DetallePedidoDTO();
             dto.setId(d.getId());
             dto.setCantidad(d.getCantidad());
+            dto.setPrecio(d.getPrecio());
             // Asignar solo el itemMenuId
             if (d.getItem() != null) {
                 dto.setItemMenuId(d.getItem().getId());

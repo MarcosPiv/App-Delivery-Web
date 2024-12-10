@@ -37,6 +37,7 @@ public class Pedido extends Observable {
             uniqueConstraints = @UniqueConstraint(columnNames = {"pedido_id", "detalle_id"}) // Garantiza unicidad
     )
     private List<DetallePedido> detallesPedido;
+    @Enumerated(EnumType.STRING)
     private Estado estado;
     @Transient // indica que no se persiste en la base de datos
     private PagoStrategy tipoDePago;
