@@ -11,17 +11,18 @@ import ClientForm from './components/forms/ClientForm';
 import MenuItemForm from './components/forms/MenuItemForm';
 import OrderForm from './components/forms/OrderForm';
 import CategoryForm from './components/forms/CategoryForm';
-import { sampleOrders } from './data/sampleData';
 import { getVendedores, deleteVendedor } from './services/vendedorService';
 import { getClient, deleteClient } from './services/clienteService';
 import { getCategories, deleteCategory } from './services/categoriaService';
 import { getAllItemsMenu, deleteItemMenu } from './services/itemsMenuService';
+import { getPedidos, deletePedido } from './services/pedidoService';
 
 function App() {
   const [clients, setClients] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [itemMenu, setItemsMenu] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('vendors');
   const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -76,6 +77,10 @@ function App() {
     { key: 'tipoItem', header: 'Tipo Item' }
   ];
 
+  const filteredOrders = orders.filter((order) =>
+        order.id.toString().includes(searchQuery)
+  );
+
   const filteredItemsMenu = itemMenu.filter((item) =>
       item.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.id.toString().includes(searchQuery)
@@ -102,7 +107,7 @@ function App() {
       case 'menu':
         return filteredItemsMenu;
       case 'orders':
-        return sampleOrders;
+        return filteredOrders;
       case 'categories':
         return filteredCategories;
       default:
@@ -141,7 +146,26 @@ function App() {
     if (activeTab === 'menu') {
       fetchMenuItems();
     }
+    if(activeTab === 'orders') {
+      fetchOrders();
+    }
   }, [activeTab]);
+
+  const fetchOrders = async () => {
+    try {
+      const data = await getPedidos(); // Obtener los datos de los pedidos
+      const formattedData = data.map((pedido) => ({
+        id: pedido.id,
+        clienteId: pedido.clienteId || 'N/A',
+        vendedorId: pedido.vendedorId || 'N/A',
+        precioTotal: pedido.precioTotal !== null ? pedido.precioTotal.toFixed(2) : '0.00',
+        estado: pedido.estado || 'PENDIENTE',
+      }));
+      setOrders(formattedData); // Actualizar el estado de pedidos con los datos formateados
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
 
   const fetchMenuItems = async () => {
     try {
@@ -238,6 +262,11 @@ function App() {
           setItemsMenu((prevItems) =>
               prevItems.filter((menuItem) => menuItem.id !== item.id)
           );
+        } else if (activeTab === 'orders') {
+            await deletePedido(item.id); // Llama a la función del servicio para eliminar un pedido
+            setOrders((prevOrders) =>
+                prevOrders.filter((order) => order.id !== item.id)
+            );
         } else {
           console.error('Tipo desconocido para eliminar:', activeTab);
         }
@@ -266,6 +295,7 @@ function App() {
     fetchClients();
     fetchCategories();
     fetchMenuItems();
+    fetchOrders();
   };
 
   const renderForm = () => {
@@ -326,7 +356,6 @@ function App() {
                   data={getActiveData()}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  // @ts-ignore
                   showOrderDetails={activeTab === 'orders'}
               />
             </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
+import {createPedido, updatePedido} from '../../services/pedidoService';
 
 interface OrderDetail {
     id: number;
@@ -15,22 +16,39 @@ interface OrderFormProps {
 }
 
 const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
-    const [orderDetails, setOrderDetails] = useState<OrderDetail[]>(initialData?.detalles || []);
+    const [orderDetails, setOrderDetails] = useState<OrderDetail[]>(initialData?.detallesPedido || []);
     const [newDetail, setNewDetail] = useState({
         cantidad: '',
         precio: '',
         itemMenuId: ''
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const mainData = Object.fromEntries(formData.entries());
         const completeData = {
-            ...mainData,
-            detalles: orderDetails
+            clienteId: Number(mainData.clienteId),
+            vendedorId: Number(mainData.vendedorId),
+            estado: mainData.estado,
+            precioTotal: calculateTotal(),
+            detallesPedido: orderDetails,
         };
-        onSubmit(completeData);
+
+        try {
+            if (initialData) {
+                await updatePedido(initialData.id, completeData);
+                alert('Pedido actualizado exitosamente.');
+            } else {
+                await createPedido(completeData);
+                alert('Pedido creado exitosamente.');
+            }
+
+            onSubmit(completeData);
+        } catch (error) {
+            console.error('Error al guardar el pedido:', error);
+            alert('Hubo un error al guardar el pedido. Por favor, intenta nuevamente.');
+        }
     };
 
     const handleAddDetail = () => {
@@ -45,6 +63,8 @@ const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
                 }
             ]);
             setNewDetail({ cantidad: '', precio: '', itemMenuId: '' });
+        } else {
+            alert('Por favor, completa todos los campos del detalle.');
         }
     };
 
@@ -89,6 +109,8 @@ const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
                             required
                         >
                             <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="EN_PREPARACION">EN PREPARACION</option>
+                            <option value="EN_ENVIO">EN ENVIO</option>
                             <option value="RECIBIDO">RECIBIDO</option>
                         </select>
                     </div>
