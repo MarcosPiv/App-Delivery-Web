@@ -87,4 +87,16 @@ public class PedidoController {
 
         return ResponseEntity.ok(detalles);
     }
+
+    @GetMapping("listarDetalles/{id}")
+    public ResponseEntity<List<DetallePedidoDTO>> listarDetallesPedido(@PathVariable int id) {
+        var pedido = pedidoService.buscarPedidoPorId(id);
+        var pedidoDTO = pedidoMapper.convertirADTO(pedido);
+        var detalles = pedidoDTO.getDetallesPedido();
+        if (detalles == null || detalles.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(detalles);
+    }
+
 }
