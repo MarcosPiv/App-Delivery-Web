@@ -15,9 +15,9 @@ import java.util.Set;
 @Entity
 public class DetallePedido {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "item_id")
     private ItemMenu item;
     @ManyToMany(mappedBy = "detallesPedido")
