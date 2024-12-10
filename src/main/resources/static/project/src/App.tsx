@@ -12,7 +12,7 @@ import MenuItemForm from './components/forms/MenuItemForm';
 import OrderForm from './components/forms/OrderForm';
 import CategoryForm from './components/forms/CategoryForm';
 import { sampleOrders } from './data/sampleData';
-import { getVendedores , deleteVendedor} from './services/vendedorService';
+import { getVendedores, deleteVendedor } from './services/vendedorService';
 import { getClient, deleteClient } from './services/clienteService';
 import { getCategories, deleteCategory } from './services/categoriaService';
 import { getAllItemsMenu, deleteItemMenu } from './services/itemsMenuService';
@@ -77,9 +77,9 @@ function App() {
   ];
 
   const filteredItemsMenu = itemMenu.filter((item) =>
-        item.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.id.toString().includes(searchQuery)
-    );
+      item.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.id.toString().includes(searchQuery)
+  );
 
   const filteredCategories = categories.filter((category) =>
       category.id.toString().includes(searchQuery) // Búsqueda por ID
@@ -138,7 +138,7 @@ function App() {
     if (activeTab === 'categories') {
       fetchCategories();
     }
-    if(activeTab === 'menu'){
+    if (activeTab === 'menu') {
       fetchMenuItems();
     }
   }, [activeTab]);
@@ -167,7 +167,6 @@ function App() {
       console.error('Error fetching menu items:', error);
     }
   };
-
 
   const fetchClients = async () => {
     try {
@@ -248,8 +247,6 @@ function App() {
     }
   };
 
-
-
   const handleAdd = () => {
     setModalMode('add');
     setEditingItem(null);
@@ -329,6 +326,8 @@ function App() {
                   data={getActiveData()}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  // @ts-ignore
+                  showOrderDetails={activeTab === 'orders'}
               />
             </div>
           </main>

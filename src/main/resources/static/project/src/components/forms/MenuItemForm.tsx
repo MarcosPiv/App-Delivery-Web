@@ -13,6 +13,7 @@ interface MenuItemFormProps {
 const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) => {
     const [useExistingCategory, setUseExistingCategory] = useState(true);
     const [newCategory, setNewCategory] = useState<any>(null);
+    const [itemType, setItemType] = useState(initialData?.tipoItem || 'Comida');
     // @ts-ignore
     const [isLoading, setIsLoading] = useState(false);
     const [categories, setCategories] = useState([]);
@@ -42,7 +43,10 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
             // Crear una nueva categoría
             setIsLoading(true);
             try {
-                categoria = await createCategory(newCategory);
+                categoria = await createCategory({
+                    descripcion: data.categoriaDescripcion as string, // Usar el nuevo campo único
+                    tipoItem: newCategory.tipoItem,
+                });
                 alert('Categoría creada exitosamente.');
             } catch (error) {
                 console.error('Error creando la categoría:', error);
@@ -63,13 +67,13 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
             descripcion: data.descripcion,
             precio: parseFloat(data.precio as string),
             peso: parseFloat(data.peso as string),
-            graduacionAlcoholica: parseFloat(data.graduacionAlcoholica as string),
-            tamanio: parseFloat(data.tamanio as string),
-            aptoVegano: data.aptoVegano === 'on',
-            aptoCeliaco: data.aptoCeliaco === 'on',
+            graduacionAlcoholica: itemType === 'Bebida' ? parseFloat(data.graduacionAlcoholica as string) : 0,
+            tamanio: itemType === 'Bebida' ? parseFloat(data.tamanio as string) : null,
+            aptoVegano: itemType === 'Comida' ? data.aptoVegano === 'on' : false,
+            aptoCeliaco: itemType === 'Comida' ? data.aptoCeliaco === 'on' : false,
             categoria, // Categoría creada o existente
-            calorias: parseFloat(data.calorias as string),
-            pesoSinEnvase: parseFloat(data.pesoSinEnvase as string),
+            calorias: itemType === 'Comida' ? parseFloat(data.calorias as string) : null,
+            pesoSinEnvase: itemType === 'Comida' ? parseFloat(data.pesoSinEnvase as string) : null,
         };
 
         try {
@@ -91,6 +95,11 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
             alert('Hubo un error al guardar el item. Por favor, intenta nuevamente.');
         }
     };
+
+    const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setItemType(e.target.value);
+    }
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto px-4">
@@ -116,6 +125,7 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
                     />
                 </div>
             </div>
+
             <div className="space-y-4">
                 <div className="flex items-center space-x-4">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Categoría:</label>
@@ -184,7 +194,8 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo</label>
                     <select
                         name="tipoItem"
-                        defaultValue={initialData?.tipo || "Comida"}
+                        value={itemType}
+                        onChange={handleTypeChange}
                         className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
                         required
                     >
@@ -192,74 +203,80 @@ const MenuItemForm = ({ onSubmit, initialData, onCancel }: MenuItemFormProps) =>
                         <option value="Bebida">Bebida</option>
                     </select>
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Graduación Alcohólica</label>
-                    <input
-                        type="number"
-                        name="graduacionAlcoholica"
-                        step="0.1"
-                        defaultValue={initialData?.graduacionAlcoholica}
-                        className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
-                        required
-                    />
-                </div>
+                {itemType === 'Bebida' && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Graduación Alcohólica</label>
+                        <input
+                            type="number"
+                            name="graduacionAlcoholica"
+                            step="0.1"
+                            defaultValue={initialData?.graduacionAlcoholica}
+                            className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
+                        />
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tamaño</label>
-                    <input
-                        type="number"
-                        name="tamanio"
-                        defaultValue={initialData?.tamanio}
-                        className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Calorías</label>
-                    <input
-                        type="number"
-                        name="calorias"
-                        defaultValue={initialData?.calorias}
-                        className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
-                        required
-                    />
-                </div>
+                {itemType === 'Bebida' && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tamaño (ml)</label>
+                        <input
+                            type="number"
+                            name="tamanio"
+                            defaultValue={initialData?.tamanio}
+                            className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
+                        />
+                    </div>
+                )}
+                {itemType === 'Comida' && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Calorías</label>
+                        <input
+                            type="number"
+                            name="calorias"
+                            defaultValue={initialData?.calorias}
+                            className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
+                        />
+                    </div>
+                )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center">
-                    <input
-                        type="checkbox"
-                        name="aptoVegano"
-                        defaultChecked={initialData?.aptoVegano}
-                        className="h-4 w-4 text-blue-600 rounded border-gray-300"
-                    />
-                    <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">Apto Vegano</label>
-                </div>
-                <div className="flex items-center">
-                    <input
-                        type="checkbox"
-                        name="aptoCeliaco"
-                        defaultChecked={initialData?.aptoCeliaco}
-                        className="h-4 w-4 text-blue-600 rounded border-gray-300"
-                    />
-                    <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">Apto Celíaco</label>
-                </div>
-            </div>
+            {itemType === 'Comida' && (
+                <>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                name="aptoVegano"
+                                defaultChecked={initialData?.aptoVegano}
+                                className="h-4 w-4 text-blue-600 rounded border-gray-300"
+                            />
+                            <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">Apto Vegano</label>
+                        </div>
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                name="aptoCeliaco"
+                                defaultChecked={initialData?.aptoCeliaco}
+                                className="h-4 w-4 text-blue-600 rounded border-gray-300"
+                            />
+                            <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">Apto Celíaco</label>
+                        </div>
+                    </div>
 
-            <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Peso Sin Envase</label>
-                <input
-                    type="number"
-                    name="pesoSinEnvase"
-                    step="0.01"
-                    defaultValue={initialData?.pesoSinEnvase}
-                    className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
-                    required
-                />
-            </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Peso Sin Envase</label>
+                        <input
+                            type="number"
+                            name="pesoSinEnvase"
+                            step="0.01"
+                            defaultValue={initialData?.pesoSinEnvase}
+                            className="mt-1 block w-full rounded-md border dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm p-2"
+                        />
+                    </div>
+                </>
+            )}
 
             <div className="flex justify-end space-x-2 mt-6">
                 <button
