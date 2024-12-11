@@ -15,7 +15,7 @@ import { getVendedores, deleteVendedor } from './services/vendedorService';
 import { getClient, deleteClient } from './services/clienteService';
 import { getCategories, deleteCategory } from './services/categoriaService';
 import { getAllItemsMenu, deleteItemMenu } from './services/itemsMenuService';
-import { getPedidos, deletePedido, getDetallesPedido } from './services/pedidoService';
+import { getPedidos, deletePedido, getDetallesPedido, getPedidoById } from './services/pedidoService';
 import { OrderDetail, OrderDetailsModal } from './components/OrderDetailsModals';
 
 function App() {
@@ -294,11 +294,22 @@ function App() {
     setShowModal(true);
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = async (item: any) => {
     setModalMode('edit');
-    setEditingItem(item);
-    setShowModal(true);
+    try {
+      let fullData = item;
+      if (activeTab === 'orders') {
+        console.log(`Fetching full data for order ID: ${item.id}`);
+        fullData = await getPedidoById(item.id);
+      }
+
+      setEditingItem(fullData);
+      setShowModal(true);
+    } catch (error) {
+      console.error('Error al obtener los datos para editar:', error);
+    }
   };
+
 
   const handleSubmit = (data: any) => {
     console.log('Form submitted:', data);

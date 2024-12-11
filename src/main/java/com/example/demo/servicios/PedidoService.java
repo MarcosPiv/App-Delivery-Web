@@ -90,6 +90,11 @@ public class PedidoService implements IPedidoService {
             pedidoActualizado.setCliente(pedido.getCliente());
             pedidoActualizado.setRestaurante(pedido.getRestaurante());
             pedidoActualizado.setPrecioTotal(pedido.getPrecioTotal());
+            for(DetallePedido detalle : pedido.getDetallesPedido()){
+                if(detallePedidoService.buscarPorCampos(detalle.getItem().getId(), detalle.getCantidad(), detalle.getPrecio()).isEmpty()){
+                    detallePedidoService.crearDetallePedido(detalle);
+                }
+            }
             pedidoActualizado.setDetallesPedido((ArrayList<DetallePedido>) pedido.getDetallesPedido());
             pedidoActualizado.setEstado(pedido.getEstado());
             return pedidoRepository.save(pedidoActualizado);

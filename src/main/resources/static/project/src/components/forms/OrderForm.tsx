@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trash2 } from 'lucide-react';
-import {createPedido, updatePedido} from '../../services/pedidoService';
+import { createPedido, updatePedido } from '../../services/pedidoService';
 
 interface OrderDetail {
-    id: number;
+    id?: number;
     cantidad: number;
     precio: number;
     itemMenuId: number;
@@ -16,41 +16,65 @@ interface OrderFormProps {
 }
 
 const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
-    const [orderDetails, setOrderDetails] = useState<OrderDetail[]>(initialData?.detallesPedido || []);
+    const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
     const [newDetail, setNewDetail] = useState({
         cantidad: '',
         precio: '',
         itemMenuId: ''
     });
+    useEffect(() => {
+        if (initialData?.detallesPedido) {
+            console.log('Cargando detalles del pedido:', initialData.detallesPedido); // Debug
+            setOrderDetails(initialData.detallesPedido); // Cargar detalles
+        }
+    }, [initialData]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         const mainData = Object.fromEntries(formData.entries());
-        const detallesSinId = orderDetails.map(({ cantidad, precio, itemMenuId }) => ({
-            cantidad,
-            precio,
-            itemMenuId,
-        }));
+
+        // Mapear detallesPedido para incluir el ID solo si está presente
+        const detallesPedidoMapped = orderDetails.map((detalle) => {
+            if (initialData && detalle.id) {
+                // Si es una actualización y el detalle tiene un ID, inclúyelo
+                return {
+                    id: detalle.id,
+                    cantidad: detalle.cantidad,
+                    precio: detalle.precio,
+                    itemMenuId: detalle.itemMenuId,
+                };
+            } else {
+                // Si es un nuevo detalle (sin ID), exclúyelo
+                return {
+                    cantidad: detalle.cantidad,
+                    precio: detalle.precio,
+                    itemMenuId: detalle.itemMenuId,
+                };
+            }
+        });
 
         const completeData = {
             clienteId: Number(mainData.clienteId),
             vendedorId: Number(mainData.vendedorId),
             estado: mainData.estado,
             precioTotal: calculateTotal(),
-            detallesPedido: detallesSinId,
+            detallesPedido: detallesPedidoMapped,
         };
 
+        console.log("JSON enviado:", completeData); // Debug
+
         try {
+            let updatedOrder;
             if (initialData) {
-                await updatePedido(initialData.id, completeData);
+                updatedOrder = await updatePedido(initialData.id, completeData);
                 alert('Pedido actualizado exitosamente.');
             } else {
-                await createPedido(completeData);
+                updatedOrder = await createPedido(completeData);
                 alert('Pedido creado exitosamente.');
             }
 
-            onSubmit(completeData);
+            onSubmit(updatedOrder);
         } catch (error) {
             console.error('Error al guardar el pedido:', error);
             alert('Hubo un error al guardar el pedido. Por favor, intenta nuevamente.');
@@ -59,28 +83,41 @@ const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
 
 
     const handleAddDetail = () => {
-        if (newDetail.cantidad && newDetail.precio && newDetail.itemMenuId) {
-            setOrderDetails([
-                ...orderDetails,
-                {
-                    id: orderDetails.length + 1,
-                    cantidad: Number(newDetail.cantidad),
-                    precio: Number(newDetail.precio),
-                    itemMenuId: Number(newDetail.itemMenuId)
-                }
-            ]);
-            setNewDetail({ cantidad: '', precio: '', itemMenuId: '' });
-        } else {
-            alert('Por favor, completa todos los campos del detalle.');
+        const { cantidad, precio, itemMenuId } = newDetail;
+
+        if (!cantidad || isNaN(Number(cantidad)) || Number(cantidad) <= 0) {
+            alert('Por favor, ingresa una cantidad válida.');
+            return;
         }
+
+        if (!precio || isNaN(Number(precio)) || Number(precio) <= 0) {
+            alert('Por favor, ingresa un precio válido.');
+            return;
+        }
+
+        if (!itemMenuId || isNaN(Number(itemMenuId)) || Number(itemMenuId) <= 0) {
+            alert('Por favor, ingresa un ID de ítem válido.');
+            return;
+        }
+
+        setOrderDetails([
+            ...orderDetails,
+            {
+                cantidad: Number(cantidad),
+                precio: Number(precio),
+                itemMenuId: Number(itemMenuId),
+            },
+        ]);
+
+        setNewDetail({ cantidad: '', precio: '', itemMenuId: '' });
     };
 
-    const handleRemoveDetail = (id: number) => {
-        setOrderDetails(orderDetails.filter(detail => detail.id !== id));
+    const handleRemoveDetail = (index: number) => {
+        setOrderDetails(orderDetails.filter((_, i) => i !== index));
     };
 
     const calculateTotal = () => {
-        return orderDetails.reduce((sum, detail) => sum + (detail.cantidad * detail.precio), 0);
+        return orderDetails.reduce((sum, detail) => sum + detail.cantidad * detail.precio, 0);
     };
 
     return (
@@ -186,7 +223,7 @@ const OrderForm = ({ onSubmit, initialData, onCancel }: OrderFormProps) => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveDetail(detail.id)}
+                                            onClick={() => handleRemoveDetail(index)}
                                             className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                         >
                                             <Trash2 className="h-5 w-5" />
