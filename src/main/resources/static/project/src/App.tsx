@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
-import Header from './components/Header';
-import Navigation from './components/Navigation';
 import SearchBar from './components/SearchBar';
 import DataTable from './components/DataTable';
 import AddButton from './components/AddButton';
@@ -17,6 +15,7 @@ import { getCategories, deleteCategory } from './services/categoriaService';
 import { getAllItemsMenu, deleteItemMenu } from './services/itemsMenuService';
 import { getPedidos, deletePedido, getDetallesPedido, getPedidoById } from './services/pedidoService';
 import { OrderDetail, OrderDetailsModal } from './components/OrderDetailsModals';
+import MainLayout from './components/layout/MainLayout';
 
 function App() {
   const [clients, setClients] = useState<any[]>([]);
@@ -347,12 +346,10 @@ function App() {
 
   return (
       <ThemeProvider>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-          <Header />
-          <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <div className="flex justify-between items-center mb-6">
+        <MainLayout activeTab={activeTab} onTabChange={setActiveTab}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <div className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <SearchBar onSearch={setSearchQuery} />
                 <AddButton
                     onClick={handleAdd}
@@ -365,32 +362,35 @@ function App() {
                     }`}
                 />
               </div>
-              <DataTable
-                  columns={
-                    activeTab === 'vendors'
-                        ? vendorsColumns
-                        : activeTab === 'clients'
-                            ? clientsColumns
-                            : activeTab === 'menu'
-                                ? menuColumns
-                                : activeTab === 'orders'
-                                    ? ordersColumns
-                                    : categoriesColumns
-                  }
-                  data={getActiveData()}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  showOrderDetails={activeTab === 'orders'}
-                  // @ts-ignore
-                  onShowOrderDetails={handleShowOrderDetails}
-              />
-              <OrderDetailsModal
-                  isOpen={isOrderDetailsModalOpen}
-                  onClose={() => setIsOrderDetailsModalOpen(false)}
-                  orderDetails={orderDetails}
-              />
+
+              <div className="overflow-hidden">
+                <DataTable
+                    columns={
+                      activeTab === 'vendors'
+                          ? vendorsColumns
+                          : activeTab === 'clients'
+                              ? clientsColumns
+                              : activeTab === 'menu'
+                                  ? menuColumns
+                                  : activeTab === 'orders'
+                                      ? ordersColumns
+                                      : categoriesColumns
+                    }
+                    data={getActiveData()}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    showOrderDetails={activeTab === 'orders'}
+                    // @ts-ignore
+                    onShowOrderDetails={handleShowOrderDetails}
+                />
+                <OrderDetailsModal
+                    isOpen={isOrderDetailsModalOpen}
+                    onClose={() => setIsOrderDetailsModalOpen(false)}
+                    orderDetails={orderDetails}
+                />
+              </div>
             </div>
-          </main>
+          </div>
 
           <Modal
               isOpen={showModal}
@@ -399,7 +399,7 @@ function App() {
           >
             {renderForm()}
           </Modal>
-        </div>
+        </MainLayout>
       </ThemeProvider>
   );
 }

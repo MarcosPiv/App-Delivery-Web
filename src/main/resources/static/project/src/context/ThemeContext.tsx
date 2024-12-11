@@ -13,7 +13,10 @@ const ThemeContext = createContext<ThemeContextType>({
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
+    if (saved !== null) {
+      return JSON.parse(saved);
+    }
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
   useEffect(() => {
@@ -30,9 +33,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
-      {children}
-    </ThemeContext.Provider>
+      <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+        {children}
+      </ThemeContext.Provider>
   );
 };
 
