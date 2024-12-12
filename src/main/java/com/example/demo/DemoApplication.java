@@ -13,13 +13,14 @@ public class DemoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 	}
+
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**") // Permite CORS para todos los endpoints
-						.allowedOrigins("*") // Cambia esto a la URL de tu frontend
+						.allowedOriginPatterns("*") // Permite cualquier patrón de URL de origen
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
 						.allowedHeaders("*") // Permite todos los encabezados
 						.allowCredentials(true); // Permite cookies o autenticación si es necesario
@@ -27,3 +28,4 @@ public class DemoApplication {
 		};
 	}
 }
+
