@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/pedidos';
+const BASE_URL = 'https://app-delivery-backend.up.railway.app/pedidos';
 
 // Obtiene todos los pedidos y retorna un array de Pedido
 export const getPedidos = async (): Promise<any[]> => {
