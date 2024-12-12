@@ -14,16 +14,6 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
-
-  react-app:
-    build:
-      context: src/main/resources/static/project
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    networks:
-      - app-network
-
 networks:
   app-network:
     driver: bridge
