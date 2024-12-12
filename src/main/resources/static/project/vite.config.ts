@@ -9,5 +9,10 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    watch: {
+      ignored: ['/proc/**'], // Ignorar directorios problemáticos
+    },
+    host: true, // Habilitar el acceso externo
+    strictPort: true,
   },
 });
