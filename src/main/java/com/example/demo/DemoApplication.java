@@ -19,7 +19,7 @@ public class DemoApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**") // Permite CORS para todos los endpoints
-						.allowedOrigins("http://localhost:3000") // Cambia esto a la URL de tu frontend
+						.allowedOrigins("*") // Cambia esto a la URL de tu frontend
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
 						.allowedHeaders("*") // Permite todos los encabezados
 						.allowCredentials(true); // Permite cookies o autenticación si es necesario
