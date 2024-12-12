@@ -8,11 +8,10 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    port: 3000,
-    watch: {
-      ignored: ['/proc/**'], // Ignorar directorios problemáticos
-    },
-    host: true, // Habilitar el acceso externo
-    strictPort: true,
+    port: 3000, // Para desarrollo local
   },
+  build: {
+    outDir: 'dist', // Asegúrate de que el directorio de salida sea correcto
+  },
+  base: './', // Configura el "base" para producción relativa
 });
