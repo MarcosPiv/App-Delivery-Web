@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   backend:
     build:
@@ -16,7 +15,7 @@ services:
     networks:
       - app-network
 
-  frontend:
+  react-app:
     build:
       context: src/main/resources/static/project
       dockerfile: Dockerfile
